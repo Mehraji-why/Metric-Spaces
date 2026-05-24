@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metric Spaces — A Visual Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0d0d14;
+  --paper: #f5f0e8;
+  --cream: #ede8d8;
+  --accent: #c84b31;
+  --gold: #c9a84c;
+  --blue: #2a5f8f;
+  --teal: #2a7f6f;
+  --dim: #6b6455;
+  --grid: rgba(13,13,20,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+  line-height: 1.75;
+}
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(13,13,20,0.96); backdrop-filter: blur(10px);
+  padding: 0 2rem; display: flex; align-items: center;
+  justify-content: space-between; height: 58px;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+nav .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--gold); }
+nav ul { list-style: none; display: flex; gap: 1.5rem; }
+nav a { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: rgba(245,240,232,0.55);
+  text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+nav a:hover { color: var(--gold); }
+#hero { min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--ink); position: relative; overflow: hidden; padding-top: 58px; }
+#hero-canvas { position: absolute; inset: 0; opacity: 0.35; }
+.hero-content { position: relative; z-index: 2; text-align: center; padding: 2rem; max-width: 780px; }
+.hero-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem;
+  opacity: 0; animation: fadeUp 0.8s 0.3s forwards; }
+.hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 8vw, 5.5rem);
+  line-height: 1.05; color: var(--paper); margin-bottom: 1.5rem;
+  opacity: 0; animation: fadeUp 0.8s 0.5s forwards; }
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-sub { font-size: 1.05rem; color: rgba(245,240,232,0.6); max-width: 500px;
+  margin: 0 auto 2.5rem; opacity: 0; animation: fadeUp 0.8s 0.7s forwards; }
+.hero-cta { display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 0.85rem 2.2rem; border: 1px solid var(--gold); color: var(--gold);
+  text-decoration: none; transition: all 0.3s; opacity: 0; animation: fadeUp 0.8s 0.9s forwards; }
+.hero-cta:hover { background: var(--gold); color: var(--ink); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+section { padding: 6rem 2rem; }
+.container { max-width: 940px; margin: 0 auto; }
+.section-number { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.75rem; }
+h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15; margin-bottom: 1.25rem; }
+h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.9rem; margin-top: 2.5rem; }
+p { margin-bottom: 1.1rem; color: #2a2520; }
+.lead { font-size: 1.15rem; color: var(--dim); font-style: italic; margin-bottom: 2rem; }
+.defn { border-left: 3px solid var(--accent); background: var(--cream);
+  padding: 1.25rem 1.75rem; margin: 2rem 0; position: relative; }
+.defn::before { content: 'DEF'; position: absolute; top: -1px; left: -1px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em;
+  background: var(--accent); color: white; padding: 2px 7px; }
+.defn .defn-title { font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  font-weight: 700; margin-bottom: 0.6rem; }
+.theorem { border-left: 3px solid var(--blue); background: #edf3f8;
+  padding: 1.25rem 1.75rem; margin: 2rem 0; position: relative; }
+.theorem::before { content: 'THM'; position: absolute; top: -1px; left: -1px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em;
+  background: var(--blue); color: white; padding: 2px 7px; }
+.math { font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+  background: rgba(13,13,20,0.07); padding: 0.1em 0.4em; border-radius: 2px; color: #1a1a2e; }
+.math-block { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+  background: rgba(13,13,20,0.05); border: 1px solid rgba(13,13,20,0.12);
+  padding: 1rem 1.5rem; margin: 1.25rem 0; border-radius: 2px;
+  overflow-x: auto; text-align: center; line-height: 2; color: #1a1a2e; }
+.visual-box { background: var(--ink); border-radius: 3px; padding: 1.25rem;
+  margin: 2rem 0; position: relative; }
+.visual-box .vis-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  letter-spacing: 0.15em; text-transform: uppercase; color: rgba(201,168,76,0.7); margin-bottom: 0.75rem; }
+.visual-box canvas { display: block; width: 100%; border-radius: 2px; }
+.vis-controls { display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap; align-items: center; }
+.vis-btn { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 0.45rem 1rem; border: 1px solid rgba(201,168,76,0.4);
+  background: transparent; color: var(--gold); cursor: pointer; transition: all 0.2s; }
+.vis-btn:hover, .vis-btn.active { background: var(--gold); color: var(--ink); }
+.vis-info { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  color: rgba(245,240,232,0.45); margin-top: 0.6rem; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem; margin: 2rem 0; }
+.metric-card { background: rgba(255,255,255,0.04); color: var(--paper);
+  padding: 1.5rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(245,240,232,0.08); position: relative; overflow: hidden; }
+.metric-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+.metric-card:hover::after { transform: scaleX(1); }
+.metric-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.metric-card.active { border-color: var(--gold); }
+.metric-card h4 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.4rem; color: var(--gold); }
+.metric-card .formula { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  color: rgba(245,240,232,0.65); margin-bottom: 0.75rem; background: rgba(255,255,255,0.04);
+  padding: 0.4rem 0.65rem; border-radius: 2px; }
+.metric-card p { font-size: 0.88rem; color: rgba(245,240,232,0.55); margin: 0; }
+.axiom-list { list-style: none; margin: 1.25rem 0; }
+.axiom-list li { display: flex; gap: 1rem; align-items: flex-start;
+  padding: 0.65rem 0; border-bottom: 1px solid rgba(13,13,20,0.1); }
+.axiom-list li:last-child { border: none; }
+.axiom-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  background: var(--accent); color: white; padding: 2px 7px; border-radius: 1px;
+  flex-shrink: 0; margin-top: 3px; }
+.slider-row { display: flex; align-items: center; gap: 0.75rem; flex: 1; }
+.slider-row label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+  color: rgba(245,240,232,0.65); min-width: 70px; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--gold); }
+.slider-row .val { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--gold); min-width: 38px; text-align: right; }
+.divider { display: flex; align-items: center; gap: 1.25rem; margin: 2.5rem 0; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(13,13,20,0.15); }
+.divider-sym { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--dim); }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+#progress { position: fixed; top: 58px; left: 0; height: 2px; background: var(--gold); z-index: 200; transition: width 0.1s; }
+footer { background: var(--ink); color: rgba(245,240,232,0.35); text-align: center;
+  padding: 2.5rem 2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; }
+footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav>
+  <div class="logo">Metric Spaces</div>
+  <ul>
+    <li><a href="#definition">Axioms</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#topology">Topology</a></li>
+    <li><a href="#sequences">Sequences</a></li>
+    <li><a href="#completeness">Completeness</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-label">A Visual Introduction to</div>
+    <h1 class="hero-title">Metric<br><em>Spaces</em></h1>
+    <p class="hero-sub">From the humble idea of distance to the deep structure of analysis — explored through interactive visuals.</p>
+    <a href="#definition" class="hero-cta">Begin the Journey</a>
+  </div>
+</section>
+
+<!-- §1 DEFINITION -->
+<section id="definition" class="grid-bg">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-number">§ 01 — The Axioms</div>
+      <h2>What Is a Metric Space?</h2>
+      <p class="lead">Distance is everywhere. But what truly makes something a "distance"?</p>
+      <p>Mathematicians distilled the essential properties of distance into three elegant axioms. A <strong>metric space</strong> is any set equipped with a function satisfying these axioms — no geometry required.</p>
+    </div>
+    <div class="divider reveal"><span class="divider-sym">∀ x, y, z ∈ X</span></div>
+    <div class="defn reveal">
+      <div class="defn-title">Metric Space</div>
+      <p>A <strong>metric space</strong> is a pair <span class="math">(X, d)</span> where <span class="math">X</span> is a set and <span class="math">d : X × X → ℝ</span> is a function satisfying the axioms below for all <span class="math">x, y, z ∈ X</span>.</p>
+    </div>
+    <ul class="axiom-list reveal">
+      <li>
+        <span class="axiom-num">M1</span>
+        <div><strong>Non-negativity:</strong> <span class="math">d(x,y) ≥ 0</span>, and <span class="math">d(x,y) = 0 ⟺ x = y</span><br>
+        <small style="color:var(--dim)">Distance is never negative. Zero distance means the points are identical.</small></div>
+      </li>
+      <li>
+        <span class="axiom-num">M2</span>
+        <div><strong>Symmetry:</strong> <span class="math">d(x,y) = d(y,x)</span><br>
+        <small style="color:var(--dim)">The distance from A to B equals the distance from B to A.</small></div>
+      </li>
+      <li>
+        <span class="axiom-num">M3</span>
+        <div><strong>Triangle Inequality:</strong> <span class="math">d(x,z) ≤ d(x,y) + d(y,z)</span><br>
+        <small style="color:var(--dim)">No shortcut exists — going via a third point is never cheaper than the direct path.</small></div>
+      </li>
+    </ul>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Interactive — Triangle Inequality (drag the points)</div>
+      <canvas id="triangle-canvas" height="280"></canvas>
+      <div class="vis-info" id="triangle-info">Drag the coloured points to explore the triangle inequality.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §2 METRICS -->
+<section id="metrics" style="background: var(--ink); color: var(--paper);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-number" style="color:var(--gold)">§ 02 — Examples</div>
+      <h2 style="color:var(--paper)">The Menagerie of Metrics</h2>
+      <p class="lead" style="color:rgba(245,240,232,0.55)">One set can carry many different metrics, each revealing different structure.</p>
+      <p style="color:rgba(245,240,232,0.7)">Select a metric below to see how its "ball" — the set of all points within distance <em>r</em> — looks in ℝ².</p>
+    </div>
+    <div class="metric-grid reveal">
+      <div class="metric-card active" data-metric="euclidean" onclick="selectMetric('euclidean',this)">
+        <h4>Euclidean</h4>
+        <div class="formula">d(x,y) = √(Σ(xᵢ−yᵢ)²)</div>
+        <p>The familiar straight-line distance. "As the crow flies."</p>
+      </div>
+      <div class="metric-card" data-metric="manhattan" onclick="selectMetric('manhattan',this)">
+        <h4>Manhattan</h4>
+        <div class="formula">d(x,y) = Σ|xᵢ−yᵢ|</div>
+        <p>Grid-walking distance. Common in city planning.</p>
+      </div>
+      <div class="metric-card" data-metric="chebyshev" onclick="selectMetric('chebyshev',this)">
+        <h4>Chebyshev</h4>
+        <div class="formula">d(x,y) = max|xᵢ−yᵢ|</div>
+        <p>The king's move in chess. The dominant coordinate wins.</p>
+      </div>
+      <div class="metric-card" data-metric="discrete" onclick="selectMetric('discrete',this)">
+        <h4>Discrete</h4>
+        <div class="formula">d(x,y) = 0 if x=y, 1 otherwise</div>
+        <p>Points are either identical or maximally far. Works on any set.</p>
+      </div>
+    </div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Unit Ball in ℝ² — adjust radius</div>
+      <canvas id="ball-canvas" height="320"></canvas>
+      <div class="vis-controls">
+        <div class="slider-row">
+          <label>radius r</label>
+          <input type="range" id="radius-slider" min="0.1" max="2.5" step="0.05" value="1.2">
+          <span class="val" id="radius-val">1.20</span>
+        </div>
+      </div>
+      <div class="vis-info" id="ball-info">Euclidean ball — the familiar circle</div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 TOPOLOGY -->
+<section id="topology" class="grid-bg">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-number">§ 03 — Topology</div>
+      <h2>Open &amp; Closed Sets</h2>
+      <p class="lead">Metric spaces give birth to topology — studying "nearness" without measurement.</p>
+    </div>
+    <div class="defn reveal">
+      <div class="defn-title">Open Ball</div>
+      <p>The <strong>open ball</strong> of radius <span class="math">r</span> centred at <span class="math">x ∈ X</span> is</p>
+      <div class="math-block">B(x, r) = { y ∈ X : d(x, y) &lt; r }</div>
+    </div>
+    <div class="defn reveal">
+      <div class="defn-title">Open Set</div>
+      <p>A set <span class="math">U ⊆ X</span> is <strong>open</strong> if every point has "breathing room" — formally:</p>
+      <div class="math-block">∀ x ∈ U, ∃ r &gt; 0 : B(x, r) ⊆ U</div>
+    </div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Open vs Closed — hover near the boundary</div>
+      <canvas id="open-canvas" height="320"></canvas>
+      <div class="vis-controls">
+        <button class="vis-btn active" onclick="setOpenMode('open',this)">Open Set</button>
+        <button class="vis-btn" onclick="setOpenMode('closed',this)">Closed Set</button>
+        <button class="vis-btn" onclick="setOpenMode('neither',this)">Neither</button>
+      </div>
+      <div class="vis-info" id="open-info">Hover near the dashed boundary to see the breathing-room ball.</div>
+    </div>
+    <div class="theorem reveal">
+      <strong>Key Facts about Open Sets:</strong>
+      <ul style="margin-left:1.5rem; margin-top:0.5rem;">
+        <li>∅ and X are both open (and both closed — "clopen").</li>
+        <li>Arbitrary unions of open sets are open.</li>
+        <li>Finite intersections of open sets are open.</li>
+        <li>A set F is closed if and only if its complement X \ F is open.</li>
+      </ul>
+    </div>
+    <h3 class="reveal">Continuity via Open Sets</h3>
+    <p class="reveal">A function <span class="math">f:(X,d)→(Y,d')</span> is continuous iff preimages of open sets are open — which is equivalent to the classical ε-δ condition:</p>
+    <div class="math-block reveal">∀ ε &gt; 0, ∃ δ &gt; 0 : d(x,y) &lt; δ ⟹ d'(f(x),f(y)) &lt; ε</div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ ε-δ Continuity — adjust ε to find the corresponding δ</div>
+      <canvas id="epsdelta-canvas" height="320"></canvas>
+      <div class="vis-controls">
+        <div class="slider-row">
+          <label>ε (output)</label>
+          <input type="range" id="eps-slider" min="0.05" max="1.2" step="0.05" value="0.5">
+          <span class="val" id="eps-val">0.50</span>
+        </div>
+      </div>
+      <div class="vis-info">The blue δ-neighbourhood on the input maps entirely inside the red ε-neighbourhood on the output.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 SEQUENCES -->
+<section id="sequences" style="background: var(--cream);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-number">§ 04 — Sequences</div>
+      <h2>Convergence</h2>
+      <p class="lead">A sequence is a journey through the space. Does it settle somewhere?</p>
+    </div>
+    <div class="defn reveal">
+      <div class="defn-title">Convergent Sequence</div>
+      <p>A sequence <span class="math">(x_n)</span> <strong>converges</strong> to <span class="math">L ∈ X</span> if</p>
+      <div class="math-block">∀ ε &gt; 0, ∃ N ∈ ℕ : n ≥ N ⟹ d(x_n, L) &lt; ε</div>
+      <p style="margin-bottom:0">Eventually, every term lives inside any open ball around L.</p>
+    </div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Sequence Convergence in ℝ²</div>
+      <canvas id="seq-canvas" height="340"></canvas>
+      <div class="vis-controls">
+        <button class="vis-btn active" onclick="setSeq('spiral',this)">Spiral</button>
+        <button class="vis-btn" onclick="setSeq('zigzag',this)">Zig-zag</button>
+        <button class="vis-btn" onclick="setSeq('diverge',this)">Divergent</button>
+        <button class="vis-btn" onclick="playSeq()">▶ Animate</button>
+      </div>
+      <div class="vis-controls">
+        <div class="slider-row">
+          <label>ε-ball</label>
+          <input type="range" id="seq-eps" min="0.05" max="0.8" step="0.025" value="0.25">
+          <span class="val" id="seq-eps-val">0.25</span>
+        </div>
+      </div>
+      <div class="vis-info" id="seq-info">Points spiral toward the limit L.</div>
+    </div>
+    <div class="defn reveal">
+      <div class="defn-title">Cauchy Sequence</div>
+      <p>A sequence is <strong>Cauchy</strong> if its terms become arbitrarily close to <em>each other</em>:</p>
+      <div class="math-block">∀ ε &gt; 0, ∃ N : m,n ≥ N ⟹ d(x_m, x_n) &lt; ε</div>
+      <p style="margin-bottom:0">Every convergent sequence is Cauchy. The converse is precisely completeness.</p>
+    </div>
+  </div>
+</section>
+
+<!-- §5 COMPLETENESS -->
+<section id="completeness" class="grid-bg">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-number">§ 05 — Completeness</div>
+      <h2>Complete Metric Spaces</h2>
+      <p class="lead">A space is complete when it has no "holes" — no missing limit points.</p>
+      <p>The rationals <span class="math">ℚ</span> are <em>not</em> complete — the sequence 3, 3.1, 3.14, 3.141, … is Cauchy but its limit π is irrational, hence absent from ℚ. The reals <span class="math">ℝ</span> are the completion of ℚ.</p>
+    </div>
+    <div class="defn reveal">
+      <div class="defn-title">Complete Metric Space</div>
+      <p style="margin-bottom:0">A metric space <span class="math">(X,d)</span> is <strong>complete</strong> if every Cauchy sequence in <span class="math">X</span> converges to a point in <span class="math">X</span>.</p>
+    </div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Complete vs Incomplete — is the limit present?</div>
+      <canvas id="complete-canvas" height="300"></canvas>
+      <div class="vis-controls">
+        <button class="vis-btn active" onclick="setComplete('complete',this)">ℝ (Complete)</button>
+        <button class="vis-btn" onclick="setComplete('incomplete',this)">ℚ\{π} (Incomplete)</button>
+      </div>
+      <div class="vis-info" id="complete-info">The sequence converges to π, which exists in ℝ.</div>
+    </div>
+    <div class="theorem reveal">
+      <strong>Banach Fixed Point Theorem.</strong> Let <span class="math">(X,d)</span> be a complete metric space and <span class="math">f:X→X</span> a contraction: <span class="math">d(f(x),f(y)) ≤ k·d(x,y)</span> for some <span class="math">k &lt; 1</span>. Then <span class="math">f</span> has a unique fixed point <span class="math">x*</span>, and the iteration <span class="math">x_{n+1} = f(x_n)</span> converges to it regardless of the starting point.
+    </div>
+    <div class="visual-box reveal">
+      <div class="vis-label">▸ Banach Fixed Point — cobweb iteration</div>
+      <canvas id="banach-canvas" height="300"></canvas>
+      <div class="vis-controls">
+        <div class="slider-row">
+          <label>k (rate)</label>
+          <input type="range" id="k-slider" min="0.1" max="0.95" step="0.05" value="0.6">
+          <span class="val" id="k-val">0.60</span>
+        </div>
+        <button class="vis-btn" onclick="runBanach()">▶ Iterate</button>
+      </div>
+      <div class="vis-info" id="banach-info">Watch iterates converge to the fixed point x* = 0.5.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built for curious minds — <span>Metric Spaces: A Visual Journey</span></p>
+  <p style="margin-top:0.5rem;font-size:0.65rem;">Explore further: Rudin's <em>Principles of Mathematical Analysis</em> · Munkres' <em>Topology</em></p>
+</footer>
+
+<script>
+const INK='#0d0d14',PAPER='#f5f0e8',GOLD='#c9a84c',BLUE='#2a5f8f',RED='#c84b31',TEAL='#2a7f6f';
+function dpr(){return window.devicePixelRatio||1;}
+function resize(c){const r=c.getBoundingClientRect();c.width=r.width*dpr();c.height=c.offsetHeight*dpr();const x=c.getContext('2d');x.scale(dpr(),dpr());return x;}
+function W(c){return c.offsetWidth;}function H(c){return c.offsetHeight;}
+
+window.addEventListener('scroll',()=>{
+  const t=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('progress').style.width=(window.scrollY/t*100)+'%';
+});
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// HERO
+(function(){
+  const c=document.getElementById('hero-canvas');
+  const ctx=c.getContext('2d');
+  let cW,cH,pts=[];
+  function init(){cW=c.width=c.offsetWidth;cH=c.height=c.offsetHeight;
+    pts=Array.from({length:55},()=>({x:Math.random()*cW,y:Math.random()*cH,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*2+1}));}
+  function frame(){ctx.clearRect(0,0,cW,cH);
+    for(let i=0;i<pts.length;i++){let p=pts[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cW)p.vx*=-1;if(p.y<0||p.y>cH)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=GOLD;ctx.fill();
+      for(let j=i+1;j<pts.length;j++){let q=pts[j];let d=Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<110){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(201,168,76,${(1-d/110)*.3})`;ctx.lineWidth=.8;ctx.stroke();}}}
+    requestAnimationFrame(frame);}
+  window.addEventListener('resize',init);init();frame();
+})();
+
+// TRIANGLE
+(function(){
+  const c=document.getElementById('triangle-canvas');
+  let ctx;
+  let pts=[{x:110,y:210,label:'x'},{x:340,y:75,label:'y'},{x:560,y:220,label:'z'}];
+  let drag=-1;
+  function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+  function draw(){
+    ctx=resize(c);const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+    const[x,y,z]=pts;
+    const dxy=dist(x,y),dyz=dist(y,z),dxz=dist(x,z);
+    const sc=130;
+    const rxy=(dxy/sc).toFixed(2),ryz=(dyz/sc).toFixed(2),rxz=(dxz/sc).toFixed(2);
+    [[x,y,`d(x,y)=${rxy}`],[y,z,`d(y,z)=${ryz}`],[x,z,`d(x,z)=${rxz}`]].forEach(([a,b,lbl],i)=>{
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+      ctx.strokeStyle=i===2?RED:GOLD;ctx.lineWidth=i===2?2.5:1.5;
+      ctx.setLineDash(i===2?[]:[6,4]);ctx.stroke();ctx.setLineDash([]);
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+      ctx.fillStyle=PAPER;ctx.font="11px 'JetBrains Mono'";ctx.fillText(lbl,mx+4,my-6);});
+    pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);
+      ctx.fillStyle=[GOLD,TEAL,BLUE][i];ctx.fill();
+      ctx.fillStyle=INK;ctx.font="bold 11px serif";ctx.textAlign='center';ctx.fillText(p.label,p.x,p.y+4);ctx.textAlign='left';});
+    document.getElementById('triangle-info').textContent=
+      `d(x,z) = ${rxz}  ≤  d(x,y) + d(y,z) = ${(+rxy + +ryz).toFixed(2)}  ✓`;}
+  c.addEventListener('mousedown',e=>{const r=c.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;pts.forEach((p,i)=>{if(Math.hypot(p.x-mx,p.y-my)<14)drag=i;});});
+  c.addEventListener('mousemove',e=>{if(drag<0)return;const r=c.getBoundingClientRect();pts[drag].x=e.clientX-r.left;pts[drag].y=e.clientY-r.top;draw();});
+  c.addEventListener('mouseup',()=>drag=-1);
+  window.addEventListener('resize',draw);setTimeout(draw,150);
+})();
+
+// METRIC BALL
+let currentMetric='euclidean';
+function selectMetric(m,el){
+  currentMetric=m;
+  document.querySelectorAll('.metric-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const lb={euclidean:'Euclidean ball — the familiar circle',manhattan:'Manhattan ball — a diamond (rotated square)',chebyshev:'Chebyshev ball — an axis-aligned square',discrete:'Discrete ball — just the center (r<1) or entire space (r≥1)'};
+  document.getElementById('ball-info').textContent=lb[m];drawBall();}
+function drawBall(){
+  const c=document.getElementById('ball-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const cx=cW/2,cy=cH/2,r=parseFloat(document.getElementById('radius-slider').value);
+  const sc=Math.min(cW,cH)*.28;
+  ctx.strokeStyle='rgba(245,240,232,0.06)';ctx.lineWidth=1;
+  for(let i=-5;i<=5;i++){ctx.beginPath();ctx.moveTo(cx+i*sc/2,0);ctx.lineTo(cx+i*sc/2,cH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,cy+i*sc/2);ctx.lineTo(cW,cy+i*sc/2);ctx.stroke();}
+  ctx.strokeStyle='rgba(245,240,232,0.22)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(cW,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,cH);ctx.stroke();
+  const rs=r*sc;
+  ctx.fillStyle='rgba(201,168,76,0.15)';ctx.strokeStyle=GOLD;ctx.lineWidth=2.5;
+  if(currentMetric==='euclidean'){ctx.beginPath();ctx.arc(cx,cy,rs,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  else if(currentMetric==='manhattan'){ctx.beginPath();ctx.moveTo(cx,cy-rs);ctx.lineTo(cx+rs,cy);ctx.lineTo(cx,cy+rs);ctx.lineTo(cx-rs,cy);ctx.closePath();ctx.fill();ctx.stroke();}
+  else if(currentMetric==='chebyshev'){ctx.beginPath();ctx.rect(cx-rs,cy-rs,rs*2,rs*2);ctx.fill();ctx.stroke();}
+  else{
+    ctx.textAlign='center';
+    if(r<1){ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.fillStyle=GOLD;ctx.fill();
+      ctx.fillStyle='rgba(245,240,232,0.55)';ctx.font="11px 'JetBrains Mono'";ctx.fillText('B(x,r) = {x}  for r < 1',cx,cy+35);}
+    else{ctx.fillStyle='rgba(201,168,76,0.15)';ctx.fillRect(4,4,cW-8,cH-8);
+      ctx.strokeStyle=GOLD;ctx.lineWidth=2;ctx.strokeRect(4,4,cW-8,cH-8);
+      ctx.fillStyle='rgba(245,240,232,0.55)';ctx.font="11px 'JetBrains Mono'";ctx.fillText('B(x,r) = X  for r ≥ 1',cx,cy);}
+    ctx.textAlign='left';return;}
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle=RED;ctx.fill();
+  ctx.fillStyle='rgba(245,240,232,0.55)';ctx.font="11px 'JetBrains Mono'";ctx.fillText(`r = ${r.toFixed(2)}`,cx+rs+8,cy-6);}
+document.getElementById('radius-slider').addEventListener('input',function(){
+  document.getElementById('radius-val').textContent=parseFloat(this.value).toFixed(2);drawBall();});
+setTimeout(drawBall,150);window.addEventListener('resize',drawBall);
+
+// OPEN/CLOSED
+let openMode='open',openMouse=null;
+function setOpenMode(m,el){openMode=m;document.querySelectorAll('#topology .vis-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');
+  const ms={open:'Hover near the dashed boundary — every point has a ball entirely inside.',closed:'The solid boundary is included. Points on the edge have no room inside.',neither:'This set has one open and one closed endpoint.'};
+  document.getElementById('open-info').textContent=ms[m];drawOpen();}
+function drawOpen(){
+  const c=document.getElementById('open-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const cx=cW/2,cy=cH/2,rx=cW*.3,ry=cH*.32;
+  ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(42,95,143,0.15)';ctx.fill();
+  ctx.strokeStyle=BLUE;ctx.lineWidth=2.5;
+  if(openMode==='open')ctx.setLineDash([8,6]);else ctx.setLineDash([]);
+  ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=PAPER;ctx.font="13px 'Playfair Display',serif";ctx.textAlign='center';
+  ctx.fillText(openMode==='open'?'U  (open)':openMode==='closed'?'F  (closed)':'S  (neither)',cx,cy+5);
+  if(openMouse){const{mx,my}=openMouse;const nx=(mx-cx)/rx,ny=(my-cy)/ry;
+    if(Math.abs(Math.sqrt(nx*nx+ny*ny)-1)<0.2){const br=openMode==='open'?30:14;
+      ctx.beginPath();ctx.arc(mx,my,br,0,Math.PI*2);
+      if(openMode==='open'){ctx.fillStyle='rgba(201,168,76,0.2)';ctx.fill();ctx.strokeStyle=GOLD;ctx.lineWidth=1.5;ctx.stroke();}
+      else{ctx.strokeStyle=RED;ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);}
+      ctx.beginPath();ctx.arc(mx,my,4,0,Math.PI*2);ctx.fillStyle=GOLD;ctx.fill();}}
+  ctx.textAlign='left';}
+document.getElementById('open-canvas').addEventListener('mousemove',function(e){const r=this.getBoundingClientRect();openMouse={mx:e.clientX-r.left,my:e.clientY-r.top};drawOpen();});
+document.getElementById('open-canvas').addEventListener('mouseleave',function(){openMouse=null;drawOpen();});
+setTimeout(drawOpen,150);window.addEventListener('resize',drawOpen);
+
+// EPS-DELTA
+function drawEpsDelta(){
+  const c=document.getElementById('epsdelta-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const eps=parseFloat(document.getElementById('eps-slider').value);
+  const delta=eps*0.62;
+  const lx=cW*0.25,rx=cW*0.75,cy=cH/2;
+  const sc=Math.min(cW*.22,cH*.38);
+  function panel(px,label,col,r){
+    ctx.strokeStyle='rgba(13,13,20,0.07)';ctx.lineWidth=.8;
+    for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(px+i*sc/2,cy-cH*.35);ctx.lineTo(px+i*sc/2,cy+cH*.35);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(px-cW*.2,cy+i*sc/2);ctx.lineTo(px+cW*.2,cy+i*sc/2);ctx.stroke();}
+    ctx.strokeStyle='rgba(13,13,20,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(px-cW*.2,cy);ctx.lineTo(px+cW*.2,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px,cy-cH*.35);ctx.lineTo(px,cy+cH*.35);ctx.stroke();
+    const rs=r*sc;ctx.beginPath();ctx.arc(px,cy,rs,0,Math.PI*2);
+    ctx.fillStyle=col+'22';ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(px,cy,5,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+    ctx.fillStyle=col;ctx.font="11px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText(label,px,cy+rs+18);}
+  panel(lx,`δ = ${delta.toFixed(2)}`,BLUE,delta);
+  panel(rx,`ε = ${eps.toFixed(2)}`,RED,eps);
+  ctx.beginPath();ctx.moveTo(lx+sc*delta+12,cy);ctx.lineTo(rx-sc*eps-12,cy);
+  ctx.strokeStyle=GOLD;ctx.lineWidth=2;ctx.stroke();
+  const ax=rx-sc*eps-12;ctx.beginPath();ctx.moveTo(ax,cy);ctx.lineTo(ax-10,cy-5);ctx.lineTo(ax-10,cy+5);ctx.fillStyle=GOLD;ctx.fill();
+  ctx.fillStyle=GOLD;ctx.font="12px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText('f',(lx+rx)/2,cy-12);ctx.textAlign='left';}
+document.getElementById('eps-slider').addEventListener('input',function(){
+  document.getElementById('eps-val').textContent=parseFloat(this.value).toFixed(2);drawEpsDelta();});
+setTimeout(drawEpsDelta,150);window.addEventListener('resize',drawEpsDelta);
+
+// SEQUENCES
+let seqType='spiral',seqN=30,seqAnim=null;
+function genSeq(type,n){const pts=[];for(let i=1;i<=n;i++){
+  if(type==='spiral'){const t=i*.45;pts.push({x:Math.cos(t)/t*2.5,y:Math.sin(t)/t*2.5});}
+  else if(type==='zigzag'){pts.push({x:(i%2===0?1:-1)*1.5/i,y:1.5/i});}
+  else{pts.push({x:Math.cos(i*.7)*i*.09,y:Math.sin(i*.7)*i*.09});}}return pts;}
+function drawSeq(){
+  const c=document.getElementById('seq-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const cx=cW/2,cy=cH/2,sc=Math.min(cW,cH)*.33;
+  const eps=parseFloat(document.getElementById('seq-eps').value);
+  const pts=genSeq(seqType,Math.max(seqN,2));
+  ctx.strokeStyle='rgba(13,13,20,0.06)';ctx.lineWidth=.8;
+  for(let i=-5;i<=5;i++){ctx.beginPath();ctx.moveTo(cx+i*sc/2,0);ctx.lineTo(cx+i*sc/2,cH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,cy+i*sc/2);ctx.lineTo(cW,cy+i*sc/2);ctx.stroke();}
+  ctx.strokeStyle='rgba(13,13,20,0.18)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(cW,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,cH);ctx.stroke();
+  if(seqType!=='diverge'){
+    ctx.beginPath();ctx.arc(cx,cy,eps*sc,0,Math.PI*2);
+    ctx.fillStyle='rgba(200,75,49,0.1)';ctx.fill();
+    ctx.strokeStyle=RED;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=RED;ctx.font="11px 'JetBrains Mono'";ctx.fillText('ε',cx+eps*sc+4,cy-4);}
+  ctx.beginPath();pts.forEach((p,i)=>{const px=cx+p.x*sc,py=cy-p.y*sc;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});
+  ctx.strokeStyle='rgba(13,13,20,0.3)';ctx.lineWidth=1.2;ctx.stroke();
+  pts.forEach((p,i)=>{const px=cx+p.x*sc,py=cy-p.y*sc,t=i/(pts.length-1);
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fillStyle=`rgba(42,95,143,${.3+t*.7})`;ctx.fill();});
+  if(pts.length>0){const lp=pts[pts.length-1];const px=cx+lp.x*sc,py=cy-lp.y*sc;
+    ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle=GOLD;ctx.fill();}
+  if(seqType!=='diverge'){
+    ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fillStyle=RED;ctx.fill();
+    ctx.fillStyle='#2a2520';ctx.font="12px 'JetBrains Mono'";ctx.fillText('L',cx+9,cy-7);
+    const inside=pts.length>0&&Math.hypot(pts[pts.length-1].x,pts[pts.length-1].y)<eps;
+    document.getElementById('seq-info').textContent=`n=${pts.length}, d(xₙ,L)=${Math.hypot(pts[pts.length-1]?.x||0,pts[pts.length-1]?.y||0).toFixed(3)}${inside?' < ε ✓':' ≥ ε'}`;
+  }else document.getElementById('seq-info').textContent='Divergent — no finite limit exists.';}
+function setSeq(t,el){seqType=t;seqN=2;if(seqAnim){cancelAnimationFrame(seqAnim);seqAnim=null;}
+  document.querySelectorAll('#sequences .vis-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');drawSeq();}
+function playSeq(){seqN=0;if(seqAnim)cancelAnimationFrame(seqAnim);
+  function step(){seqN++;drawSeq();if(seqN<42)seqAnim=requestAnimationFrame(step);}step();}
+document.getElementById('seq-eps').addEventListener('input',function(){
+  document.getElementById('seq-eps-val').textContent=parseFloat(this.value).toFixed(2);seqN=Math.max(seqN,30);drawSeq();});
+setTimeout(()=>{seqN=30;drawSeq();},150);window.addEventListener('resize',drawSeq);
+
+// COMPLETENESS
+let completeMode='complete';
+function setComplete(m,el){completeMode=m;
+  document.querySelectorAll('#completeness .vis-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');
+  const ms={complete:'The sequence converges to π, which exists in ℝ.',incomplete:'The sequence converges to π, but π ∉ ℚ — the limit is "missing"!'};
+  document.getElementById('complete-info').textContent=ms[m];drawComplete();}
+function drawComplete(){
+  const c=document.getElementById('complete-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const cy=cH/2,lx=60,rx=cW-60;
+  ctx.strokeStyle='rgba(13,13,20,0.25)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(lx,cy);ctx.lineTo(rx,cy);ctx.stroke();
+  const vals=[3,3.1,3.14,3.141,3.1415,3.14159];
+  const sc=(rx-lx)/(3.5-2.9);const toX=v=>lx+(v-2.9)*sc;
+  vals.forEach((v,i)=>{const x=toX(v);const t=i/(vals.length-1);
+    ctx.beginPath();ctx.arc(x,cy,6-i*.5,0,Math.PI*2);
+    ctx.fillStyle=`rgba(42,95,143,${.35+t*.65})`;ctx.fill();
+    ctx.fillStyle='rgba(13,13,20,0.5)';ctx.font="9px 'JetBrains Mono'";ctx.textAlign='center';
+    ctx.fillText(v.toString().slice(0,5),x,cy-12);});
+  const limitX=toX(Math.PI);
+  if(completeMode==='complete'){
+    ctx.beginPath();ctx.arc(limitX,cy,9,0,Math.PI*2);ctx.fillStyle=RED;ctx.fill();
+    ctx.fillStyle=RED;ctx.font="bold 13px 'Playfair Display'";ctx.textAlign='center';ctx.fillText('π',limitX,cy+22);
+    ctx.fillStyle='rgba(13,13,20,0.55)';ctx.font="10px 'JetBrains Mono'";ctx.fillText('π ∈ ℝ ✓',limitX,cy+38);
+  }else{
+    ctx.beginPath();ctx.arc(limitX,cy,9,0,Math.PI*2);ctx.strokeStyle=RED;ctx.lineWidth=2.5;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(limitX-6,cy-6);ctx.lineTo(limitX+6,cy+6);ctx.moveTo(limitX+6,cy-6);ctx.lineTo(limitX-6,cy+6);
+    ctx.strokeStyle=RED;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=RED;ctx.font="bold 13px 'Playfair Display'";ctx.textAlign='center';ctx.fillText('π',limitX,cy+22);
+    ctx.fillStyle='rgba(200,75,49,0.8)';ctx.font="10px 'JetBrains Mono'";ctx.fillText('π ∉ ℚ  ✗',limitX,cy+38);}
+  ctx.textAlign='left';}
+setTimeout(drawComplete,150);window.addEventListener('resize',drawComplete);
+
+// BANACH
+let banachPts=[],banachAnim=null;
+function runBanach(){const k=parseFloat(document.getElementById('k-slider').value);
+  banachPts=[0.05];if(banachAnim)cancelAnimationFrame(banachAnim);
+  function step(){const last=banachPts[banachPts.length-1];const next=k*last+(1-k)*.5;
+    banachPts.push(next);drawBanach();
+    if(Math.abs(next-.5)>.001&&banachPts.length<60)banachAnim=requestAnimationFrame(step);
+    else document.getElementById('banach-info').textContent=`Converged to x* = 0.5 in ${banachPts.length} steps  (k = ${k})`;}
+  step();}
+function drawBanach(){
+  const c=document.getElementById('banach-canvas');const ctx=resize(c);
+  const cW=W(c),cH=H(c);ctx.clearRect(0,0,cW,cH);
+  const pad=55,gW=cW-pad*2,gH=cH-pad*2;
+  const k=parseFloat(document.getElementById('k-slider').value);
+  const toX=v=>pad+v*gW,toY=v=>(cH-pad)-v*gH;
+  ctx.strokeStyle='rgba(13,13,20,0.12)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad,cH-pad);ctx.lineTo(cW-pad,cH-pad);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,cH-pad);ctx.stroke();
+  ctx.strokeStyle='rgba(13,13,20,0.1)';
+  ctx.beginPath();ctx.moveTo(pad,cH-pad);ctx.lineTo(cW-pad,pad);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(toX(0),toY(k*0+(1-k)*.5));ctx.lineTo(toX(1),toY(k*1+(1-k)*.5));
+  ctx.strokeStyle=GOLD;ctx.lineWidth=2.5;ctx.stroke();
+  if(banachPts.length>0){
+    ctx.beginPath();let x=banachPts[0];ctx.moveTo(toX(x),toY(0));
+    banachPts.forEach(x=>{const fx=k*x+(1-k)*.5;ctx.lineTo(toX(x),toY(fx));ctx.lineTo(toX(fx),toY(fx));});
+    ctx.strokeStyle='rgba(42,127,111,0.75)';ctx.lineWidth=1.5;ctx.stroke();
+    const lx=banachPts[banachPts.length-1];
+    ctx.beginPath();ctx.arc(toX(lx),toY(lx),5,0,Math.PI*2);ctx.fillStyle=TEAL;ctx.fill();}
+  ctx.beginPath();ctx.arc(toX(.5),toY(.5),7,0,Math.PI*2);ctx.fillStyle=RED;ctx.fill();
+  ctx.fillStyle='rgba(13,13,20,0.65)';ctx.font="11px 'JetBrains Mono'";ctx.fillText('x* = 0.5',toX(.5)+10,toY(.5)-5);
+  ctx.fillStyle='rgba(13,13,20,0.35)';ctx.font="10px 'JetBrains Mono'";
+  ctx.fillText('0',pad-15,cH-pad+4);ctx.fillText('1',cW-pad,cH-pad+14);ctx.fillText('f(x)',pad+5,pad+15);}
+document.getElementById('k-slider').addEventListener('input',function(){document.getElementById('k-val').textContent=parseFloat(this.value).toFixed(2);});
+setTimeout(()=>runBanach(),200);window.addEventListener('resize',drawBanach);
+</script>
+</body>
+</html>
