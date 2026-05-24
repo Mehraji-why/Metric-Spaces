@@ -1,1935 +1,996 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metric Spaces — By Prerna Mehra</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Metric Spaces — Prerna Mehra</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
-:root {
-  --ink: #0d0d18;
-  --paper: #f7f2e8;
-  --cream: #ede8d8;
-  --accent: #e05c3a;
-  --gold: #f0c040;
-  --gold-dim: #c9a030;
-  --blue: #4a9fd4;
-  --teal: #3abf9f;
-  --green: #5ecb6e;
-  --purple: #b06ee0;
-  --dim: #7a6e5e;
-  --card-bg: #1a1a2e;
-  --text-on-dark: #f0ece0;
-  --text-muted-dark: rgba(240,236,224,0.75);
-  --grid: rgba(13,13,20,0.07);
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-
-body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--paper);
-  color: var(--ink);
-  overflow-x: hidden;
-  line-height: 1.8;
+html{
+  scroll-behavior:smooth;
 }
 
-/* ─── TOP BANNER ─── */
-#top-banner {
-  background: linear-gradient(135deg, #1a0a2e 0%, #2a1040 50%, #1a0a2e 100%);
-  color: var(--text-on-dark);
-  text-align: center;
-  padding: 0.7rem 2rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  border-bottom: 2px solid var(--gold);
-  position: relative;
-  z-index: 200;
-}
-#top-banner span { color: var(--gold); font-weight: 500; }
-#top-banner a { color: #7ec8f0; text-decoration: none; }
-#top-banner a:hover { text-decoration: underline; }
-
-/* ─── PROGRESS ─── */
-#progress {
-  position: fixed;
-  top: 0; left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--gold));
-  z-index: 9999;
-  transition: width 0.1s;
+body{
+  font-family:'Inter',sans-serif;
+  background:#050510;
+  color:#f3f4f8;
+  overflow-x:hidden;
+  line-height:1.8;
 }
 
-/* ─── NAV ─── */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(13,13,24,0.97);
-  backdrop-filter: blur(12px);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  border-bottom: 1px solid rgba(240,192,64,0.25);
-}
-.nav-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  color: var(--gold);
-  letter-spacing: 0.04em;
-}
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-nav a {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
-  color: rgba(240,236,224,0.65);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.6rem;
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-nav a:hover { color: var(--gold); background: rgba(240,192,64,0.1); }
+/* =========================================================
+   VARIABLES
+========================================================= */
 
-/* ─── HERO ─── */
-#hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ink);
-  position: relative;
-  overflow: hidden;
-}
-#hero-canvas { position:absolute; inset:0; opacity:0.4; }
-.hero-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 2rem;
-  max-width: 820px;
-}
-.hero-byline {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.5rem;
-  opacity: 0;
-  animation: fadeUp 0.8s 0.2s forwards;
-}
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(3rem, 9vw, 6.5rem);
-  line-height: 1.05;
-  color: var(--text-on-dark);
-  margin-bottom: 1rem;
-  opacity: 0;
-  animation: fadeUp 0.8s 0.4s forwards;
-}
-.hero-title em { font-style: italic; color: var(--gold); }
-.hero-date {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  color: rgba(240,236,224,0.45);
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.15em;
-  opacity: 0;
-  animation: fadeUp 0.8s 0.55s forwards;
-}
-.hero-sub {
-  font-size: 1.1rem;
-  color: rgba(240,236,224,0.7);
-  max-width: 540px;
-  margin: 0 auto 2.5rem;
-  opacity: 0;
-  animation: fadeUp 0.8s 0.7s forwards;
-}
-.hero-cta {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.9rem 2.6rem;
-  border: 1.5px solid var(--gold);
-  color: var(--gold);
-  text-decoration: none;
-  transition: all 0.3s;
-  opacity: 0;
-  animation: fadeUp 0.8s 0.9s forwards;
-}
-.hero-cta:hover { background: var(--gold); color: var(--ink); }
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(28px); }
-  to   { opacity:1; transform:translateY(0); }
+:root{
+  --bg:#050510;
+  --bg2:#09091a;
+  --card:#101325;
+  --card2:#151932;
+
+  --text:#f4f6fb;
+  --muted:#b6bfd3;
+
+  --accent:#7aa2ff;
+  --accent2:#5eead4;
+
+  --border:rgba(255,255,255,0.08);
+
+  --shadow:
+    0 10px 40px rgba(0,0,0,0.35);
+
+  --glass:
+    rgba(255,255,255,0.04);
 }
 
-/* ─── SECTIONS ─── */
-section { padding: 6rem 1.5rem; }
-.container { max-width: 980px; margin: 0 auto; }
-.section-number {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  color: var(--gold-dim);
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-}
-.section-number-light {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-}
-h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.9rem, 4vw, 3rem);
-  line-height: 1.15;
-  margin-bottom: 1.2rem;
-}
-h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.45rem;
-  margin-bottom: 0.9rem;
-  margin-top: 2.5rem;
-  color: var(--ink);
-}
-h3.light { color: var(--text-on-dark); }
-p { margin-bottom: 1.1rem; color: #2e2820; }
-p.on-dark { color: var(--text-muted-dark); }
-.lead {
-  font-size: 1.15rem;
-  color: var(--dim);
-  font-style: italic;
-  margin-bottom: 2rem;
-  line-height: 1.65;
-}
-.lead.light { color: rgba(240,236,224,0.65); }
+/* =========================================================
+   SCROLLBAR
+========================================================= */
 
-/* ─── HINDI HINT ─── */
-.hint-box {
-  background: linear-gradient(135deg, #fff8e6, #fff3d0);
-  border-left: 4px solid var(--gold-dim);
-  border-radius: 0 6px 6px 0;
-  padding: 0.9rem 1.4rem;
-  margin: 1.2rem 0;
-  font-size: 0.95rem;
-  color: #4a3800;
-}
-.hint-box .hint-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #7a5800;
-  display: block;
-  margin-bottom: 0.3rem;
+::-webkit-scrollbar{
+  width:10px;
 }
 
-/* ─── DEF / THM / EX BOXES ─── */
-.defn, .theorem, .example, .proof-box, .corollary {
-  padding: 1.4rem 1.8rem;
-  margin: 2rem 0;
-  position: relative;
-  border-radius: 0 6px 6px 0;
-}
-.defn {
-  border-left: 4px solid var(--accent);
-  background: #fff5f2;
-}
-.defn::before { content:'DEF'; background:var(--accent); }
-.theorem {
-  border-left: 4px solid var(--blue);
-  background: #eef6ff;
-}
-.theorem::before { content:'THM'; background:var(--blue); }
-.example {
-  border-left: 4px solid var(--teal);
-  background: #edfaf5;
-}
-.example::before { content:'EX'; background:var(--teal); }
-.proof-box {
-  border-left: 4px solid var(--purple);
-  background: #f5eeff;
-}
-.proof-box::before { content:'PROOF'; background:var(--purple); }
-.corollary {
-  border-left: 4px solid var(--green);
-  background: #efffef;
-}
-.corollary::before { content:'COR'; background:var(--green); }
-.defn::before, .theorem::before, .example::before, .proof-box::before, .corollary::before {
-  position: absolute;
-  top: -1px; left: -1px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.15em;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 0 0 4px 0;
-}
-.box-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.6rem;
-  margin-top: 0.3rem;
-  color: #1a1a2e;
+::-webkit-scrollbar-track{
+  background:#070714;
 }
 
-/* ─── MATH ─── */
-.math {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9em;
-  background: rgba(13,13,20,0.08);
-  padding: 0.1em 0.45em;
-  border-radius: 3px;
-  color: #1a0a3e;
-}
-.math-block {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.98rem;
-  background: #1a1a2e;
-  color: #e0d4ff;
-  border: none;
-  padding: 1.1rem 1.6rem;
-  margin: 1.4rem 0;
-  border-radius: 6px;
-  overflow-x: auto;
-  text-align: center;
-  line-height: 2.2;
-}
-.math-block.light { background:#0d0d18; }
-
-/* ─── CANVAS / VISUAL BOX ─── */
-.visual-box {
-  background: #0f0f1e;
-  border-radius: 8px;
-  padding: 1.2rem;
-  margin: 2rem 0;
-  border: 1px solid rgba(240,192,64,0.2);
-}
-.vis-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.8rem;
-}
-.visual-box canvas { display:block; width:100%; border-radius:4px; }
-.vis-controls {
-  display: flex;
-  gap: 0.8rem;
-  margin-top: 0.8rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.vis-btn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.45rem 1rem;
-  border: 1px solid rgba(240,192,64,0.45);
-  background: transparent;
-  color: var(--gold);
-  cursor: pointer;
-  border-radius: 3px;
-  transition: all 0.2s;
-}
-.vis-btn:hover, .vis-btn.active {
-  background: var(--gold);
-  color: var(--ink);
-}
-.vis-info {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: rgba(240,236,224,0.55);
-  margin-top: 0.6rem;
-  line-height: 1.5;
+::-webkit-scrollbar-thumb{
+  background:#2d3a6b;
+  border-radius:999px;
 }
 
-/* ─── METRIC CARDS ─── */
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-  gap: 1.2rem;
-  margin: 2rem 0;
-}
-.metric-card {
-  background: #1a1a2e;
-  color: var(--text-on-dark);
-  padding: 1.6rem;
-  cursor: pointer;
-  border: 1px solid rgba(240,192,64,0.1);
-  border-radius: 6px;
-  transition: all 0.25s;
-  position: relative;
-  overflow: hidden;
-}
-.metric-card::after {
-  content:'';
-  position:absolute;
-  bottom:0; left:0; right:0;
-  height:3px;
-  background: var(--gold);
-  transform:scaleX(0);
-  transform-origin:left;
-  transition:transform 0.3s;
-}
-.metric-card:hover::after, .metric-card.active::after { transform:scaleX(1); }
-.metric-card:hover { transform:translateY(-3px); box-shadow:0 10px 35px rgba(0,0,0,0.4); }
-.metric-card.active { border-color: rgba(240,192,64,0.5); background: #1f1f38; }
-.metric-card h4 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  color: var(--gold);
-  margin-bottom: 0.4rem;
-}
-.metric-card .formula {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-  color: #a0e0ff;
-  background: rgba(255,255,255,0.05);
-  padding: 0.45rem 0.7rem;
-  border-radius: 3px;
-  margin-bottom: 0.8rem;
-}
-.metric-card p { font-size: 0.88rem; color: rgba(240,236,224,0.7); margin:0; }
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
 
-/* ─── AXIOM LIST ─── */
-.axiom-list { list-style:none; margin:1.5rem 0; }
-.axiom-list li {
-  display:flex; gap:1rem; align-items:flex-start;
-  padding:0.8rem 0;
-  border-bottom:1px solid rgba(13,13,20,0.1);
-}
-.axiom-list li:last-child { border:none; }
-.axiom-num {
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.65rem;
-  background:var(--accent);
-  color:white;
-  padding:3px 8px;
-  border-radius:3px;
-  flex-shrink:0;
-  margin-top:4px;
-}
-
-/* ─── SLIDER ─── */
-.slider-row {
-  display:flex; align-items:center; gap:1rem; margin:0.5rem 0;
-}
-.slider-row label {
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.72rem;
-  color:rgba(240,236,224,0.75);
-  min-width:90px;
-}
-.slider-row input[type=range] { flex:1; accent-color:var(--gold); }
-.slider-row .val {
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.75rem;
-  color:var(--gold);
-  min-width:42px;
-  text-align:right;
-}
-
-/* ─── TABLE ─── */
-.styled-table {
-  width:100%;
-  border-collapse:collapse;
-  margin:1.5rem 0;
-  font-size:0.92rem;
-  border-radius:6px;
-  overflow:hidden;
-}
-.styled-table th {
-  background:#1a1a2e;
-  color: var(--gold);
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.72rem;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  padding:0.8rem 1rem;
-  text-align:left;
-}
-.styled-table td {
-  padding:0.75rem 1rem;
-  border-bottom:1px solid rgba(13,13,20,0.1);
-  vertical-align:top;
-  color:#2e2820;
-}
-.styled-table tr:nth-child(even) td { background:rgba(13,13,20,0.04); }
-
-/* ─── SECTION BGs ─── */
-.bg-dark { background: var(--ink); }
-.bg-cream { background: var(--cream); }
-.bg-paper { background: var(--paper); }
-.grid-bg {
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size:30px 30px;
-}
-
-/* ─── REVEAL ─── */
-.reveal {
-  opacity:0;
-  transform:translateY(28px);
-  transition:opacity 0.65s ease, transform 0.65s ease;
-}
-.reveal.visible { opacity:1; transform:translateY(0); }
-
-/* ─── DIVIDER ─── */
-.divider {
-  display:flex; align-items:center; gap:1.5rem; margin:2.5rem 0;
-}
-.divider::before, .divider::after {
-  content:''; flex:1; height:1px; background:rgba(13,13,20,0.15);
-}
-.divider.light::before, .divider.light::after {
-  background: rgba(240,236,224,0.15);
-}
-.divider-sym {
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.8rem;
-  color:var(--dim);
-}
-.divider.light .divider-sym { color: rgba(240,236,224,0.4); }
-
-/* ─── REVIEW SECTION ─── */
-#review-section { background: #0f0f1e; }
-.review-form {
-  background: #1a1a2e;
-  border-radius: 10px;
-  padding: 2.5rem;
-  border: 1px solid rgba(240,192,64,0.2);
-  max-width: 680px;
-  margin: 0 auto;
-}
-.form-group { margin-bottom: 1.4rem; }
-.form-group label {
-  display:block;
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.72rem;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  color: var(--gold);
-  margin-bottom:0.5rem;
-}
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width:100%;
-  background: #0d0d18;
-  border: 1px solid rgba(240,192,64,0.25);
-  color: var(--text-on-dark);
-  padding: 0.75rem 1rem;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-  border-color: var(--gold);
-}
-.form-group textarea { height: 130px; resize: vertical; }
-.form-group select option { background:#1a1a2e; }
-.submit-btn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.9rem 2.4rem;
-  background: transparent;
-  border: 1.5px solid var(--gold);
-  color: var(--gold);
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.25s;
-  width: 100%;
-}
-.submit-btn:hover { background: var(--gold); color: var(--ink); }
-#form-status {
-  text-align:center;
-  margin-top:1rem;
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.8rem;
-  color: var(--green);
-  display:none;
-}
-.star-row {
-  display:flex; gap:0.5rem; font-size:1.8rem; cursor:pointer; margin-bottom:0.5rem;
-}
-.star { color: rgba(240,192,64,0.25); transition:color 0.15s; }
-.star.on { color: var(--gold); }
-
-/* ─── FOOTER ─── */
-footer {
-  background: #070710;
-  color: rgba(240,236,224,0.45);
-  text-align: center;
-  padding: 3rem 2rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  line-height: 2;
-}
-footer a { color: #7ec8f0; text-decoration: none; }
-footer span.gold { color: var(--gold); }
-
-/* ─── TOOLTIP ─── */
-.tooltip {
+#progress{
   position:fixed;
-  background: #1a1a2e;
-  color: var(--gold);
-  padding:0.4rem 0.9rem;
-  font-family:'JetBrains Mono', monospace;
-  font-size:0.72rem;
-  border-radius:4px;
-  pointer-events:none;
-  z-index:999;
-  border:1px solid var(--gold);
-  display:none;
-  white-space:nowrap;
+  top:0;
+  left:0;
+  width:0%;
+  height:3px;
+  background:linear-gradient(
+    90deg,
+    #7aa2ff,
+    #5eead4
+  );
+  z-index:9999;
 }
 
-/* ─── SEQUENCE DOTS ─── */
-.seq-dots { display:flex; flex-wrap:wrap; gap:8px; margin:1.5rem 0; }
-.seq-dot {
-  width:14px; height:14px;
-  background:var(--gold);
-  border-radius:50%;
-  transition:all 0.4s;
-  opacity:0.3;
-}
-.seq-dot.lit { opacity:1; transform:scale(1.3); }
+/* =========================================================
+   NAVBAR
+========================================================= */
 
-/* ─── RESPONSIVE ─── */
-@media(max-width:640px){
-  nav ul { display:none; }
-  .review-form { padding:1.5rem; }
-  .metric-grid { grid-template-columns:1fr; }
+nav{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  height:72px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 5vw;
+
+  z-index:1000;
+
+  background:rgba(5,5,16,0.65);
+
+  backdrop-filter:blur(18px);
+
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
+
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;
+  font-weight:700;
+  color:white;
+  letter-spacing:0.03em;
+}
+
+nav ul{
+  display:flex;
+  gap:2rem;
+  list-style:none;
+}
+
+nav a{
+  text-decoration:none;
+  color:#d6def1;
+  font-size:0.95rem;
+  font-weight:500;
+  transition:0.25s;
+}
+
+nav a:hover{
+  color:white;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+#hero{
+  position:relative;
+
+  min-height:100vh;
+
+  overflow:hidden;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:7rem 2rem 4rem;
+
+  background:
+    radial-gradient(circle at top left,
+      rgba(100,120,255,0.18),
+      transparent 35%),
+
+    radial-gradient(circle at bottom right,
+      rgba(94,234,212,0.12),
+      transparent 35%),
+
+    linear-gradient(
+      135deg,
+      #04040d,
+      #070713 40%,
+      #03030a
+    );
+}
+
+/* FULLSCREEN NETWORK CANVAS */
+
+#hero-canvas{
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  z-index:0;
+
+  opacity:1;
+}
+
+/* SOFT OVERLAY */
+
+.hero-overlay{
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.5)
+    );
+
+  z-index:1;
+}
+
+/* CONTENT */
+
+.hero-content{
+  position:relative;
+  z-index:2;
+
+  max-width:900px;
+
+  text-align:center;
+
+  padding:4rem;
+
+  border-radius:32px;
+
+  background:
+    rgba(7,10,25,0.45);
+
+  backdrop-filter:blur(14px);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 25px 80px rgba(0,0,0,0.4);
+}
+
+.hero-tag{
+  display:inline-block;
+
+  margin-bottom:1.2rem;
+
+  padding:0.55rem 1rem;
+
+  border-radius:999px;
+
+  background:rgba(122,162,255,0.12);
+
+  border:1px solid rgba(122,162,255,0.22);
+
+  color:#b7ccff;
+
+  font-size:0.85rem;
+
+  font-weight:600;
+
+  letter-spacing:0.04em;
+}
+
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+
+  font-size:clamp(4rem,10vw,7rem);
+
+  line-height:0.95;
+
+  font-weight:700;
+
+  margin-bottom:1.5rem;
+
+  color:white;
+}
+
+.hero-title span{
+  color:#8bb3ff;
+}
+
+.hero-sub{
+  font-size:1.15rem;
+
+  line-height:1.9;
+
+  color:#d3dbef;
+
+  max-width:720px;
+
+  margin:auto auto 2.5rem;
+}
+
+.hero-buttons{
+  display:flex;
+  justify-content:center;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+
+.btn{
+  text-decoration:none;
+
+  padding:1rem 1.8rem;
+
+  border-radius:14px;
+
+  font-weight:600;
+
+  transition:0.25s;
+}
+
+.btn-primary{
+  background:#7aa2ff;
+  color:#08111f;
+}
+
+.btn-primary:hover{
+  transform:translateY(-2px);
+  background:#92b6ff;
+}
+
+.btn-secondary{
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.03);
+  color:white;
+}
+
+.btn-secondary:hover{
+  background:rgba(255,255,255,0.08);
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+section{
+  padding:7rem 7vw;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+
+.section-label{
+  color:#7aa2ff;
+  text-transform:uppercase;
+  letter-spacing:0.15em;
+  font-size:0.8rem;
+  margin-bottom:1rem;
+  font-weight:700;
+}
+
+h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.6rem,5vw,4.5rem);
+  line-height:1.05;
+  margin-bottom:1.5rem;
+  color:white;
+}
+
+.lead{
+  font-size:1.15rem;
+  line-height:1.9;
+  color:var(--muted);
+  max-width:850px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+
+  gap:1.5rem;
+
+  margin-top:3rem;
+}
+
+.card{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.02)
+    );
+
+  border:1px solid var(--border);
+
+  border-radius:24px;
+
+  padding:2rem;
+
+  transition:0.3s;
+
+  box-shadow:var(--shadow);
+}
+
+.card:hover{
+  transform:translateY(-6px);
+
+  border-color:
+    rgba(122,162,255,0.35);
+}
+
+.card h3{
+  font-size:1.4rem;
+  margin-bottom:1rem;
+  color:white;
+}
+
+.card p{
+  color:#b9c2d6;
+  line-height:1.8;
+}
+
+/* =========================================================
+   FORMULA BOX
+========================================================= */
+
+.formula{
+  margin:1.2rem 0;
+
+  padding:1rem 1.2rem;
+
+  border-radius:14px;
+
+  background:
+    rgba(122,162,255,0.08);
+
+  border:
+    1px solid rgba(122,162,255,0.16);
+
+  color:#dce6ff;
+
+  overflow-x:auto;
+
+  font-family:monospace;
+
+  font-size:0.95rem;
+}
+
+/* =========================================================
+   GLASS PANELS
+========================================================= */
+
+.panel{
+  margin-top:3rem;
+
+  padding:2.5rem;
+
+  border-radius:30px;
+
+  background:
+    rgba(255,255,255,0.03);
+
+  border:
+    1px solid rgba(255,255,255,0.07);
+
+  backdrop-filter:blur(12px);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+  padding:4rem 2rem;
+  text-align:center;
+  color:#9aa7c2;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+
+/* =========================================================
+   REVEAL
+========================================================= */
+
+.reveal{
+  opacity:0;
+  transform:translateY(40px);
+  transition:0.8s ease;
+}
+
+.reveal.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px){
+
+  nav ul{
+    display:none;
+  }
+
+  .hero-content{
+    padding:2.2rem;
+  }
+
+  .hero-title{
+    font-size:4rem;
+  }
+
+  section{
+    padding:5rem 1.5rem;
+  }
+
+}
+
 </style>
 </head>
+
 <body>
 
 <div id="progress"></div>
-<div class="tooltip" id="tooltip"></div>
 
-<!-- TOP BANNER -->
-<div id="top-banner">
-  Built with ❤️ by <span>Prerna Mehra</span> &nbsp;|&nbsp; 24 May 2026 &nbsp;|&nbsp; 
-  Questions? <a href="mailto:mehraprerna@gmail.com">mehraprerna@gmail.com</a>
-</div>
+<!-- =====================================================
+     NAV
+===================================================== -->
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">Metric Spaces</div>
+
+  <div class="logo">Metric Spaces</div>
+
   <ul>
-    <li><a href="#definition">§1 Definition</a></li>
-    <li><a href="#metrics">§2 Metrics</a></li>
-    <li><a href="#topology">§3 Topology</a></li>
-    <li><a href="#sequences">§4 Sequences</a></li>
-    <li><a href="#completeness">§5 Completeness</a></li>
-    <li><a href="#connected">§6 Connected</a></li>
-    <li><a href="#compact">§7 Compact</a></li>
-    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#topology">Topology</a></li>
+    <li><a href="#sequences">Sequences</a></li>
+    <li><a href="#complete">Complete</a></li>
   </ul>
+
 </nav>
 
-<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<!-- =====================================================
+     HERO
+===================================================== -->
+
 <section id="hero">
+
   <canvas id="hero-canvas"></canvas>
-  <div class="hero-content">
-    <div class="hero-byline">A Visual Journey — Created by Prerna Mehra</div>
-    <h1 class="hero-title">Metric<br><em>Spaces</em></h1>
-    <div class="hero-date">24 May 2026 &nbsp;·&nbsp; mehraprerna@gmail.com</div>
-    <p class="hero-sub">Distance se shuru karke analysis ki gahraiyon tak — interactive visuals ke saath samjhein.</p>
-    <a href="#definition" class="hero-cta">Shuru Karein ↓</a>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content reveal">
+
+    <div class="hero-tag">
+      Mathematical Analysis • Topology • Distance Geometry
+    </div>
+
+    <h1 class="hero-title">
+      Metric <span>Spaces</span>
+    </h1>
+
+    <p class="hero-sub">
+      A modern and intuitive exploration of metric spaces —
+      from distance functions and open sets to convergence,
+      compactness, topology, and completeness.
+    </p>
+
+    <div class="hero-buttons">
+
+      <a href="#intro" class="btn btn-primary">
+        Start Learning
+      </a>
+
+      <a href="#metrics" class="btn btn-secondary">
+        Explore Metrics
+      </a>
+
+    </div>
+
   </div>
+
 </section>
 
-<!-- ═══════════════════════════ §1 DEFINITION ═══════════════════════════ -->
-<section id="definition" class="grid-bg bg-paper">
-<div class="container">
+<!-- =====================================================
+     INTRO
+===================================================== -->
 
-  <div class="reveal">
-    <div class="section-number">§ 01 — Buniyaad / The Foundation</div>
-    <h2>What is a Metric Space?</h2>
-    <p class="lead">Kya aapne kabhi socha: "doori" ka matlab asal mein kya hai? Metric space usi sawaal ka jawab hai.</p>
-    <p>Roz ki zindagi mein hum doori mapte hain — shahr ki sadkon par, jeb mein rakhe ruler se, ya flight path se. Lekin mathematicians ne socha: <em>in sab mein kya cheez common hai?</em> Unhone chhaan ke sirf <strong>4 rules</strong> nikale — aur unhe "metric axioms" kaha.</p>
-  </div>
+<section id="intro">
 
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Socho ek shahar ka map. Do jagah ke beech "doori" hoti hai. Yahi concept generalize karke kisi bhi set par lagana — yahi hai metric space ka kaam!
-  </div>
+  <div class="container reveal">
 
-  <div class="defn reveal">
-    <div class="box-title">Metric Space — Definition</div>
-    <p>A <strong>metric space</strong> is a pair <span class="math">(X, d)</span> where <span class="math">X</span> is a non-empty set and <span class="math">d : X × X → ℝ</span> is a function called the <strong>metric</strong> (or distance function), satisfying the following four axioms for all <span class="math">x, y, z ∈ X</span>:</p>
-  </div>
+    <div class="section-label">
+      Foundation
+    </div>
 
-  <ul class="axiom-list reveal">
-    <li>
-      <span class="axiom-num">M1</span>
-      <div>
-        <strong>Non-negativity (Gairamaujoodiat nahin):</strong> <span class="math">d(x, y) ≥ 0</span><br>
-        and <span class="math">d(x, y) = 0 ⟺ x = y</span><br>
-        <small style="color:var(--dim)">Doori kabhi negative nahi hoti. Zero doori ka matlab: dono ek hi jagah hain.</small>
+    <h2>
+      What Is A Metric Space?
+    </h2>
+
+    <p class="lead">
+      A metric space is one of the most fundamental structures
+      in mathematics. It gives us a rigorous way to define
+      “distance” between objects.
+    </p>
+
+    <div class="panel">
+
+      <div class="formula">
+        d(x,y) ≥ 0
       </div>
-    </li>
-    <li>
-      <span class="axiom-num">M2</span>
-      <div>
-        <strong>Symmetry (Samacharchita):</strong> <span class="math">d(x, y) = d(y, x)</span><br>
-        <small style="color:var(--dim)">Delhi se Mumbai ki doori = Mumbai se Delhi ki doori. Simple!</small>
+
+      <div class="formula">
+        d(x,y) = d(y,x)
       </div>
-    </li>
-    <li>
-      <span class="axiom-num">M3</span>
-      <div>
-        <strong>Triangle Inequality (Tribhuj asamanta):</strong> <span class="math">d(x, z) ≤ d(x, y) + d(y, z)</span><br>
-        <small style="color:var(--dim)">Seedha jaana, rasate se jaane se kabhi zyada lambi nahi hoti. Koi shortcut nahi ban sakta!</small>
+
+      <div class="formula">
+        d(x,z) ≤ d(x,y) + d(y,z)
       </div>
-    </li>
-  </ul>
 
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Interactive — Triangle Inequality (Drag the points!)</div>
-    <canvas id="triangle-canvas" height="280"></canvas>
-    <div class="vis-info" id="triangle-info">Kisi bhi point ko drag karein — notice karein d(x,z) ≤ d(x,y) + d(y,z) hamesha sach rahega.</div>
+    </div>
+
   </div>
 
-  <div class="defn reveal">
-    <div class="box-title">Pseudo-Metric Space</div>
-    <p>A <strong>pseudo-metric</strong> (ya semi-metric) is the same as a metric, except we drop the condition <span class="math">d(x,y) = 0 ⟹ x = y</span>. So two <em>different</em> points can be at distance zero.</p>
-    <p style="color:#4a2800; margin:0"><strong>Example:</strong> <span class="math">d(f, g) = sup|f(x) − g(x)|</span> on a set of functions where two functions may agree except on a set of measure zero.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Diameter of a Set</div>
-    <p>The <strong>diameter</strong> of a non-empty subset <span class="math">A ⊆ X</span> is:</p>
-    <div class="math-block">diam(A) = sup { d(x, y) : x, y ∈ A }</div>
-    <p style="margin:0">If <span class="math">diam(A) &lt; ∞</span>, we say <span class="math">A</span> is <strong>bounded</strong>. Think of it as the "widest" the set gets.</p>
-  </div>
-
-  <div class="divider reveal"><span class="divider-sym">∎</span></div>
-
-</div>
 </section>
 
-<!-- ═══════════════════════════ §2 METRICS ═══════════════════════════ -->
-<section id="metrics" class="bg-dark">
-<div class="container">
+<!-- =====================================================
+     METRICS
+===================================================== -->
 
-  <div class="reveal">
-    <div class="section-number-light">§ 02 — Metric ke Prakar / Types of Metrics</div>
-    <h2 style="color:var(--text-on-dark)">The Menagerie of Metrics</h2>
-    <p class="lead light">Ek hi set par alag-alag metrics — har ek doori ko alag nazar se dekhti hai.</p>
-    <p class="on-dark">Click a metric below to see how its "ball" (set of points within distance r) looks. Same set, completely different shapes!</p>
-  </div>
+<section id="metrics">
 
-  <div class="metric-grid reveal">
-    <div class="metric-card active" data-metric="euclidean" onclick="selectMetric('euclidean',this)">
-      <h4>Euclidean (Usual)</h4>
-      <div class="formula">d(x,y) = √(Σ(xᵢ−yᵢ)²)</div>
-      <p>Ruler se seedha measure karein. "Jaise crow uda tha" wali doori. Most common metric on ℝⁿ.</p>
-    </div>
-    <div class="metric-card" data-metric="manhattan" onclick="selectMetric('manhattan',this)">
-      <h4>Manhattan (Taxicab)</h4>
-      <div class="formula">d(x,y) = Σ|xᵢ−yᵢ|</div>
-      <p>Shahar ki sadkon par chalte chalte. Sirf horizontal/vertical movement. L¹ metric.</p>
-    </div>
-    <div class="metric-card" data-metric="chebyshev" onclick="selectMetric('chebyshev',this)">
-      <h4>Chebyshev (L∞)</h4>
-      <div class="formula">d(x,y) = max|xᵢ−yᵢ|</div>
-      <p>Chess mein raja ka move. Sabse badi coordinate difference lena. L∞ metric.</p>
-    </div>
-    <div class="metric-card" data-metric="discrete" onclick="selectMetric('discrete',this)">
-      <h4>Discrete Metric</h4>
-      <div class="formula">d(x,y) = 0 (x=y), 1 (x≠y)</div>
-      <p>Ya same ho, ya ek unit door. Kisi bhi set par kaam karta hai — even non-numeric sets!</p>
-    </div>
-  </div>
+  <div class="container reveal">
 
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Unit Ball in ℝ² — Radius Badlein</div>
-    <canvas id="ball-canvas" height="320"></canvas>
-    <div class="vis-controls">
-      <div class="slider-row" style="flex:1">
-        <label>radius r</label>
-        <input type="range" id="radius-slider" min="0.1" max="2.4" step="0.05" value="1.2">
-        <span class="val" id="radius-val">1.20</span>
+    <div class="section-label">
+      Common Metrics
+    </div>
+
+    <h2>
+      Different Metrics Create Different Geometries
+    </h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>Euclidean Metric</h3>
+
+        <div class="formula">
+          d₂(x,y)=√Σ(xᵢ-yᵢ)²
+        </div>
+
+        <p>
+          The familiar straight-line distance from geometry.
+        </p>
       </div>
-    </div>
-    <div class="vis-info" id="ball-info">Euclidean ball — the perfect circle</div>
-  </div>
 
-  <div class="reveal">
-    <h3 class="light">Usual Metric on ℝ</h3>
-    <p class="on-dark">The most important example: on the real line <span class="math" style="background:rgba(255,255,255,0.1);color:#e0d4ff">ℝ</span>, the <strong>usual metric</strong> is:</p>
-    <div class="math-block">d(x, y) = |x − y|</div>
-    <p class="on-dark">This satisfies all four axioms. Almost all of real analysis is built on this single metric!</p>
-  </div>
+      <div class="card">
+        <h3>Manhattan Metric</h3>
 
-  <div class="reveal">
-    <h3 class="light">Metric on ℝⁿ</h3>
-    <p class="on-dark">On <span class="math" style="background:rgba(255,255,255,0.1);color:#e0d4ff">ℝⁿ</span>, the three most important metrics (all valid) are:</p>
-    <table class="styled-table" style="font-size:0.85rem">
-      <tr>
-        <th>Name</th><th>Formula</th><th>Ball Shape</th>
-      </tr>
-      <tr>
-        <td style="color:#e0e0f0">Euclidean d₂</td>
-        <td style="color:#a0e0ff;font-family:'JetBrains Mono',monospace;font-size:0.8rem">√(Σ(xᵢ−yᵢ)²)</td>
-        <td style="color:#e0e0f0">Circle / Sphere</td>
-      </tr>
-      <tr>
-        <td style="color:#e0e0f0">Manhattan d₁</td>
-        <td style="color:#a0e0ff;font-family:'JetBrains Mono',monospace;font-size:0.8rem">Σ|xᵢ−yᵢ|</td>
-        <td style="color:#e0e0f0">Diamond / Octahedron</td>
-      </tr>
-      <tr>
-        <td style="color:#e0e0f0">Chebyshev d∞</td>
-        <td style="color:#a0e0ff;font-family:'JetBrains Mono',monospace;font-size:0.8rem">max|xᵢ−yᵢ|</td>
-        <td style="color:#e0e0f0">Square / Cube</td>
-      </tr>
-    </table>
-  </div>
+        <div class="formula">
+          d₁(x,y)=Σ|xᵢ-yᵢ|
+        </div>
 
-</div>
-</section>
-
-<!-- ═══════════════════════════ §3 TOPOLOGY ═══════════════════════════ -->
-<section id="topology" class="grid-bg bg-paper">
-<div class="container">
-
-  <div class="reveal">
-    <div class="section-number">§ 03 — Topology</div>
-    <h2>Open & Closed Sets, Neighbourhoods</h2>
-    <p class="lead">Metric se topology janam leti hai — "nazdeeiki" ka ek deeper idea, bina measure ke.</p>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Socho ek point ko apne ghar ki tarah. "Open set" ek aisi mohalla hai jahan har ghar ke aas-paas thodi jagah hoti hai — matlab koi bhi "edge" par nahi rehta. "Closed set" mein edge ke point bhi included hain.
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Open Ball / Neighbourhood</div>
-    <p>The <strong>open ball</strong> (ya neighbourhood) of radius <span class="math">r &gt; 0</span> centred at <span class="math">x ∈ X</span>:</p>
-    <div class="math-block">B(x, r) = { y ∈ X : d(x, y) &lt; r }</div>
-    <p style="margin:0">Note: strict inequality (&lt;), so the boundary is <em>not</em> included. This is like an open interval in ℝ.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Interior Point</div>
-    <p>A point <span class="math">x ∈ A</span> is an <strong>interior point</strong> of <span class="math">A</span> if there exists <span class="math">r &gt; 0</span> such that <span class="math">B(x, r) ⊆ A</span>.</p>
-    <p style="margin:0">The set of all interior points of <span class="math">A</span> is the <strong>interior</strong> <span class="math">A° = Int(A)</span>.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Open Set</div>
-    <p>A set <span class="math">U ⊆ X</span> is <strong>open</strong> if every point of <span class="math">U</span> is an interior point:</p>
-    <div class="math-block">∀ x ∈ U, ∃ r &gt; 0 : B(x, r) ⊆ U</div>
-    <p style="margin:0">Equivalently: <span class="math">U = Int(U)</span>.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Limit Point (Accumulation Point / Adherent Point)</div>
-    <p>A point <span class="math">x ∈ X</span> is a <strong>limit point</strong> (accumulation point) of <span class="math">A</span> if every neighbourhood of <span class="math">x</span> contains a point of <span class="math">A</span> <em>different from</em> <span class="math">x</span>:</p>
-    <div class="math-block">∀ r &gt; 0, (B(x, r) \ {x}) ∩ A ≠ ∅</div>
-    <p style="margin:0">An <strong>adherent point</strong> (or point of closure) is slightly weaker — every neighbourhood intersects <span class="math">A</span> (the point itself may be the intersection).</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Closed Set & Closure</div>
-    <p>A set <span class="math">F ⊆ X</span> is <strong>closed</strong> if it contains all its limit points. Equivalently, <span class="math">F</span> is closed iff its complement <span class="math">X \setminus F</span> is open.</p>
-    <p>The <strong>closure</strong> of <span class="math">A</span> is the smallest closed set containing <span class="math">A</span>:</p>
-    <div class="math-block">Ā = A ∪ {limit points of A}</div>
-  </div>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Interactive — Open vs Closed vs Neither</div>
-    <canvas id="open-canvas" height="320"></canvas>
-    <div class="vis-controls">
-      <button class="vis-btn active" onclick="setOpenMode('open',this)">Open Set</button>
-      <button class="vis-btn" onclick="setOpenMode('closed',this)">Closed Set</button>
-      <button class="vis-btn" onclick="setOpenMode('neither',this)">Neither (Half-open)</button>
-    </div>
-    <div class="vis-info" id="open-info">Set ke boundary ke paas hover karein — open set mein har point ke paas "breathing room" hai.</div>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Key Theorems on Open / Closed Sets</div>
-    <ul style="margin-left:1.4rem; margin-top:0.5rem; line-height:2">
-      <li>∅ and X are both open <em>and</em> closed ("clopen").</li>
-      <li>Arbitrary unions of open sets are open.</li>
-      <li>Finite intersections of open sets are open.</li>
-      <li>Arbitrary intersections of closed sets are closed.</li>
-      <li>Finite unions of closed sets are closed.</li>
-    </ul>
-  </div>
-
-  <div class="proof-box reveal">
-    <div class="box-title">Proof: Arbitrary Union of Open Sets is Open</div>
-    <p>Let <span class="math">{Uα}</span> be any collection of open sets. Let <span class="math">U = ∪ Uα</span> and let <span class="math">x ∈ U</span>.</p>
-    <p>Then <span class="math">x ∈ Uα</span> for some <span class="math">α</span>. Since <span class="math">Uα</span> is open, <span class="math">∃ r &gt; 0</span> with <span class="math">B(x,r) ⊆ Uα ⊆ U</span>.</p>
-    <p style="margin:0">Since <span class="math">x</span> was arbitrary, <span class="math">U</span> is open. <strong>∎</strong></p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Interior of a Set</div>
-    <p>The interior <span class="math">A°</span> is the largest open set contained in <span class="math">A</span>. It equals the union of all open sets contained in <span class="math">A</span>.</p>
-    <div class="math-block">A° = ∪ { U : U is open, U ⊆ A }</div>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Bolzano–Weierstrass Theorem</div>
-    <p>Every bounded infinite subset of <span class="math">ℝⁿ</span> has at least one limit point (accumulation point).</p>
-    <p style="margin:0"><em>Intuition (Hindi):</em> Agar ek bounded region mein infinitely many points hain, toh kuch points ek dusre ke bahut karib honge — unka ek "gathering spot" zaroor hoga!</p>
-  </div>
-
-  <div class="proof-box reveal">
-    <div class="box-title">Proof Sketch: Bolzano–Weierstrass (ℝ)</div>
-    <p>Let <span class="math">S ⊆ ℝ</span> be bounded and infinite. Since bounded, <span class="math">S ⊆ [a, b]</span>. Bisect <span class="math">[a,b]</span> into two halves — at least one half contains infinitely many points of <span class="math">S</span>. Bisect again, and again... This gives a nested sequence of intervals with lengths → 0. Their intersection is a single point, which is a limit point of <span class="math">S</span>. <strong>∎</strong></p>
-  </div>
-
-  <h3 class="reveal">Continuity — ε-δ Definition</h3>
-  <p class="reveal">A function <span class="math">f : (X, d) → (Y, d')</span> is <strong>continuous at x₀</strong> if:</p>
-  <div class="math-block reveal">∀ ε > 0, ∃ δ > 0 : d(x, x₀) < δ ⟹ d'(f(x), f(x₀)) < ε</div>
-  <p class="reveal">And <span class="math">f</span> is <strong>continuous</strong> if it is continuous at every point. Equivalently, preimages of open sets are open.</p>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ ε-δ Continuity Visualiser (f(x) = x²)</div>
-    <canvas id="epsdelta-canvas" height="320"></canvas>
-    <div class="vis-controls">
-      <div class="slider-row" style="flex:1">
-        <label>ε (output)</label>
-        <input type="range" id="eps-slider" min="0.05" max="1.5" step="0.05" value="0.5">
-        <span class="val" id="eps-val">0.50</span>
+        <p>
+          Distance measured along grid-like movement.
+        </p>
       </div>
-    </div>
-    <div class="vis-info" id="eps-info">Red band = ε around f(x₀). Blue band = corresponding δ around x₀. Notice as ε shrinks, δ also shrinks.</div>
-  </div>
 
-</div>
-</section>
+      <div class="card">
+        <h3>Chebyshev Metric</h3>
 
-<!-- ═══════════════════════════ §4 SEQUENCES ═══════════════════════════ -->
-<section id="sequences" class="bg-cream">
-<div class="container">
+        <div class="formula">
+          d∞(x,y)=max|xᵢ-yᵢ|
+        </div>
 
-  <div class="reveal">
-    <div class="section-number">§ 04 — Sequences</div>
-    <h2>Convergence & Cauchy Sequences</h2>
-    <p class="lead">Kya ek sequence ka "destination" hota hai? Convergence isi sawaal ka jawaab hai.</p>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Socho ek ant ek line par chal rahi hai. Agar woh ek hi jagah ki taraf milti ja rahi hai — toh woh "converge" kar rahi hai. Agar woh darr rahi hai to — "diverge".
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Convergent Sequence</div>
-    <p>A sequence <span class="math">(xₙ)</span> in a metric space <span class="math">(X, d)</span> <strong>converges to L</strong> if:</p>
-    <div class="math-block">∀ ε > 0, ∃ N ∈ ℕ : n > N ⟹ d(xₙ, L) < ε</div>
-    <p style="margin:0">We write <span class="math">xₙ → L</span> or <span class="math">lim xₙ = L</span>. The point <span class="math">L</span> is the <strong>limit</strong>.</p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Uniqueness of Limits</div>
-    <p>In a metric space, a convergent sequence has a <strong>unique</strong> limit.</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof</div>
-    <p>Suppose <span class="math">xₙ → L</span> and <span class="math">xₙ → M</span>. Then for any <span class="math">ε &gt; 0</span>:</p>
-    <div class="math-block">d(L, M) ≤ d(L, xₙ) + d(xₙ, M) < ε/2 + ε/2 = ε</div>
-    <p style="margin:0">Since <span class="math">ε</span> was arbitrary, <span class="math">d(L,M) = 0</span>, so <span class="math">L = M</span>. <strong>∎</strong></p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Bounded Sequence</div>
-    <p>A sequence <span class="math">(xₙ)</span> is <strong>bounded</strong> if the set <span class="math">{xₙ : n ∈ ℕ}</span> is bounded, i.e., <span class="math">∃ M &gt; 0</span> such that <span class="math">d(xₙ, x₁) ≤ M</span> for all <span class="math">n</span>.</p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Convergent ⟹ Bounded</div>
-    <p>Every convergent sequence is bounded. (Converse is NOT generally true!)</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof</div>
-    <p>Let <span class="math">xₙ → L</span>. Take <span class="math">ε = 1</span>. Then <span class="math">∃ N</span> such that for <span class="math">n &gt; N</span>, <span class="math">d(xₙ, L) &lt; 1</span>.</p>
-    <p>Let <span class="math">M = max{d(x₁,L), d(x₂,L), ..., d(xₙ,L), 1} + 1</span>. Then <span class="math">d(xₙ, L) ≤ M</span> for all <span class="math">n</span>. <strong>∎</strong></p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Cauchy Sequence</div>
-    <p>A sequence <span class="math">(xₙ)</span> is <strong>Cauchy</strong> if the terms get arbitrarily close to <em>each other</em>:</p>
-    <div class="math-block">∀ ε > 0, ∃ N ∈ ℕ : m, n > N ⟹ d(xₘ, xₙ) < ε</div>
-    <p><strong>Key intuition:</strong> Cauchy sequence ke terms ek-dusre ke paas aate jaate hain — chahe unka limit X mein ho ya na ho!</p>
-    <p style="margin:0"><strong>Important:</strong> In ℝ or ℝⁿ, every Cauchy sequence converges. But in general metric spaces, a Cauchy sequence may NOT converge within the space (e.g., ℚ with usual metric).</p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Convergent ⟹ Cauchy</div>
-    <p>Every convergent sequence is a Cauchy sequence.</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof</div>
-    <p>Let <span class="math">xₙ → L</span>. Given <span class="math">ε &gt; 0</span>, choose <span class="math">N</span> such that <span class="math">n &gt; N ⟹ d(xₙ, L) &lt; ε/2</span>. Then for <span class="math">m, n &gt; N</span>:</p>
-    <div class="math-block">d(xₘ, xₙ) ≤ d(xₘ, L) + d(L, xₙ) < ε/2 + ε/2 = ε ∎</div>
-  </div>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Sequence Convergence Visualiser</div>
-    <canvas id="seq-canvas" height="280"></canvas>
-    <div class="vis-controls">
-      <button class="vis-btn active" onclick="setSeqType('conv',this)">1/n → 0</button>
-      <button class="vis-btn" onclick="setSeqType('osc',this)">(-1)ⁿ (Diverges)</button>
-      <button class="vis-btn" onclick="setSeqType('cauchy',this)">Cauchy in ℚ</button>
-    </div>
-    <div class="vis-info" id="seq-info">Sequence 1/n converges to 0. Watch the terms get closer and closer.</div>
-  </div>
-
-</div>
-</section>
-
-<!-- ═══════════════════════════ §5 COMPLETENESS ═══════════════════════════ -->
-<section id="completeness" class="bg-dark">
-<div class="container">
-
-  <div class="reveal">
-    <div class="section-number-light">§ 05 — Sampurnata / Completeness</div>
-    <h2 style="color:var(--text-on-dark)">Complete Metric Spaces</h2>
-    <p class="lead light">Kuch spaces mein har Cauchy sequence ka ek "ghar" hota hai. Aise spaces ko "complete" kehte hain.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Complete Metric Space</div>
-    <p>A metric space <span class="math">(X, d)</span> is <strong>complete</strong> if every Cauchy sequence in <span class="math">X</span> converges to a point in <span class="math">X</span>.</p>
-    <p><strong>Examples:</strong></p>
-    <ul style="margin-left:1.4rem; line-height:2; color:#2e2820">
-      <li><span class="math" style="background:rgba(13,13,20,0.08)">ℝ</span> with usual metric — <strong>complete</strong> ✓</li>
-      <li><span class="math" style="background:rgba(13,13,20,0.08)">ℚ</span> with usual metric — <strong>NOT complete</strong> (√2 is a limit not in ℚ)</li>
-      <li><span class="math" style="background:rgba(13,13,20,0.08)">ℝⁿ</span> — <strong>complete</strong> ✓</li>
-      <li>Any discrete metric space — <strong>complete</strong> ✓</li>
-      <li>Open interval <span class="math" style="background:rgba(13,13,20,0.08)">(0,1)</span> with usual metric — <strong>NOT complete</strong></li>
-    </ul>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    ℚ ek "incomplete" space hai — socho 1, 1.4, 1.41, 1.414, 1.4142, ... yeh sequence ℚ mein Cauchy hai, lekin iski limit √2 hai jo ℚ mein hi nahi! Matlab sequence ek aisi jagah jaana chahti hai jo exist hi nahi karti.
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Completeness of ℝ (Completeness Axiom)</div>
-    <p>Every Cauchy sequence of real numbers converges to a real number. This is a fundamental axiom / theorem of real analysis.</p>
-  </div>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Complete vs Incomplete Space — Visual</div>
-    <canvas id="complete-canvas" height="280"></canvas>
-    <div class="vis-controls">
-      <button class="vis-btn active" onclick="setCompleteMode('complete',this)">ℝ (Complete)</button>
-      <button class="vis-btn" onclick="setCompleteMode('incomplete',this)">ℚ (Incomplete)</button>
-    </div>
-    <div class="vis-info" id="complete-info">ℝ mein Cauchy sequence ka limit hamesha space mein hi hota hai.</div>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Nested Interval Theorem</div>
-    <p>If <span class="math">[a₁, b₁] ⊇ [a₂, b₂] ⊇ ...</span> is a nested sequence of closed bounded intervals with <span class="math">(bₙ − aₙ) → 0</span>, then there is exactly one point in all of them:</p>
-    <div class="math-block">∩ₙ [aₙ, bₙ] = {x} for some x ∈ ℝ</div>
-  </div>
-
-</div>
-</section>
-
-<!-- ═══════════════════════════ §6 CONNECTED SETS ═══════════════════════════ -->
-<section id="connected" class="grid-bg bg-paper">
-<div class="container">
-
-  <div class="reveal">
-    <div class="section-number">§ 06 — Connected & Disconnected Sets</div>
-    <h2>Separation, Connectedness & Continuity</h2>
-    <p class="lead">Kya ek set "ek tukda" hai, ya "toot ke" alag-alag parts mein bata hua hai?</p>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Socho ek continuous line vs. do alag points. Ek "connected" hai, doosra "disconnected". Ek kadam bhi kaafi hai alag karne ke liye!
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Separated Sets</div>
-    <p>Two sets <span class="math">A, B ⊆ X</span> are <strong>separated</strong> if:</p>
-    <div class="math-block">Ā ∩ B = ∅  and  A ∩ B̄ = ∅</div>
-    <p style="margin:0">Neither set contains a limit point of the other. They are truly "far apart" even if not disjoint as sets.</p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Connected & Disconnected Sets</div>
-    <p>A set <span class="math">E ⊆ X</span> is <strong>disconnected</strong> if it can be written as <span class="math">E = A ∪ B</span> where <span class="math">A</span> and <span class="math">B</span> are non-empty separated sets.</p>
-    <p style="margin:0">A set is <strong>connected</strong> if it is NOT disconnected — it cannot be split into two separated non-empty parts.</p>
-  </div>
-
-  <div class="example reveal">
-    <div class="box-title">Examples</div>
-    <ul style="margin-left:1.4rem; line-height:2.2; color:#003a2e">
-      <li><span class="math">ℝ</span> is connected. Any interval <span class="math">[a,b]</span>, <span class="math">(a,b)</span> is connected.</li>
-      <li><span class="math">ℝ \ {0} = (-∞,0) ∪ (0,∞)</span> is disconnected.</li>
-      <li><span class="math">ℚ</span> is <em>totally disconnected</em> — no non-trivial connected subsets.</li>
-      <li>Any single point set <span class="math">{x}</span> is connected.</li>
-    </ul>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Continuous Image of a Connected Set is Connected</div>
-    <p>If <span class="math">f : X → Y</span> is continuous and <span class="math">E ⊆ X</span> is connected, then <span class="math">f(E)</span> is connected in <span class="math">Y</span>.</p>
-  </div>
-
-  <div class="proof-box reveal">
-    <div class="box-title">Proof</div>
-    <p>Suppose <span class="math">f(E) = A ∪ B</span> with <span class="math">A, B</span> separated. Let <span class="math">G = f⁻¹(A) ∩ E</span> and <span class="math">H = f⁻¹(B) ∩ E</span>. Then <span class="math">G, H</span> are non-empty (if <span class="math">A, B</span> non-empty), <span class="math">G ∪ H = E</span>, and one can show <span class="math">G, H</span> are separated (using continuity to pull back the separation). This contradicts <span class="math">E</span> being connected. <strong>∎</strong></p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Intermediate Value Theorem (IVT) — Metric Space Version</div>
-    <p>If <span class="math">f : X → ℝ</span> is continuous and <span class="math">X</span> is connected, and <span class="math">f(a) &lt; c &lt; f(b)</span>, then <span class="math">∃ x ∈ X</span> with <span class="math">f(x) = c</span>.</p>
-    <p style="margin:0"><em>Intuition:</em> Ek connected set pe continuous function "jump" nahi kar sakta — beech ki har value leni padti hai!</p>
-  </div>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Connected vs Disconnected Sets</div>
-    <canvas id="connected-canvas" height="280"></canvas>
-    <div class="vis-controls">
-      <button class="vis-btn active" onclick="setConnMode('connected',this)">Connected</button>
-      <button class="vis-btn" onclick="setConnMode('disconnected',this)">Disconnected</button>
-      <button class="vis-btn" onclick="setConnMode('separated',this)">Separated</button>
-    </div>
-    <div class="vis-info" id="conn-info">Connected set ko kisi straight line se do hisson mein nahi kaata ja sakta bina set ko "kaate".</div>
-  </div>
-
-</div>
-</section>
-
-<!-- ═══════════════════════════ §7 COMPACTNESS ═══════════════════════════ -->
-<section id="compact" class="bg-cream">
-<div class="container">
-
-  <div class="reveal">
-    <div class="section-number">§ 07 — Samabhava / Compactness</div>
-    <h2>Compact Sets & Uniform Continuity</h2>
-    <p class="lead">Compactness ek powerful property hai — "bounded aur closed hona" ka ek generalization.</p>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Compact set ek aisi cheez hai jahan "har chiz limited jagah mein fit ho jaye". Jaisa ek finite-size box — koi cheez bahar nahi ja sakti aur nahi hi infinitely bhar sakti!
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Open Cover & Compactness</div>
-    <p>An <strong>open cover</strong> of a set <span class="math">K ⊆ X</span> is a collection <span class="math">{Uα}</span> of open sets such that <span class="math">K ⊆ ∪ Uα</span>.</p>
-    <p>A set <span class="math">K</span> is <strong>compact</strong> if every open cover has a <em>finite subcover</em> — i.e., finitely many of the <span class="math">Uα</span> already cover <span class="math">K</span>.</p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Heine-Borel Theorem (in ℝⁿ)</div>
-    <p>A subset <span class="math">K ⊆ ℝⁿ</span> is compact if and only if it is <strong>closed and bounded</strong>.</p>
-    <p style="margin:0"><em>Note:</em> This holds specifically in <span class="math">ℝⁿ</span>. In general metric spaces, compact ⟹ closed and bounded, but not necessarily the converse.</p>
-  </div>
-
-  <div class="proof-box reveal">
-    <div class="box-title">Proof Sketch: [a,b] is Compact (Heine-Borel, 1D)</div>
-    <p>Let <span class="math">{Uα}</span> cover <span class="math">[a,b]</span>. Suppose no finite subcover exists. Bisect <span class="math">[a,b]</span> — at least one half has no finite subcover. Bisect again, and again... We get a nested sequence of closed intervals <span class="math">[aₙ, bₙ]</span> with lengths → 0 and no finite subcover. By the Nested Interval Theorem, there exists <span class="math">x ∈ ∩[aₙ, bₙ]</span>. Then <span class="math">x ∈ Uα</span> for some <span class="math">α</span>, so <span class="math">∃ r &gt; 0</span> with <span class="math">(x-r, x+r) ⊆ Uα</span>. But for large <span class="math">n</span>, <span class="math">[aₙ, bₙ] ⊆ (x-r, x+r) ⊆ Uα</span> — a single set covers the interval. Contradiction! <strong>∎</strong></p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Compact Sets are Closed and Bounded</div>
-    <p>In any metric space, every compact set is closed and bounded.</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof: Compact ⟹ Bounded</div>
-    <p>Fix <span class="math">x₀ ∈ K</span>. The collection <span class="math">{B(x₀, n) : n ∈ ℕ}</span> is an open cover of <span class="math">K</span>. By compactness, finitely many cover <span class="math">K</span>: <span class="math">K ⊆ B(x₀, N)</span> for some <span class="math">N</span>. So <span class="math">K</span> is bounded. <strong>∎</strong></p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Continuous Image of Compact Set is Compact</div>
-    <p>If <span class="math">f : X → Y</span> is continuous and <span class="math">K ⊆ X</span> is compact, then <span class="math">f(K)</span> is compact in <span class="math">Y</span>.</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof</div>
-    <p>Let <span class="math">{Vα}</span> be an open cover of <span class="math">f(K)</span>. Then <span class="math">{f⁻¹(Vα)}</span> is an open cover of <span class="math">K</span> (by continuity). By compactness of <span class="math">K</span>, finitely many suffice: <span class="math">K ⊆ f⁻¹(Vα₁) ∪ ... ∪ f⁻¹(Vαₙ)</span>. Then <span class="math">f(K) ⊆ Vα₁ ∪ ... ∪ Vαₙ</span>. <strong>∎</strong></p>
-  </div>
-
-  <div class="defn reveal">
-    <div class="box-title">Uniform Continuity</div>
-    <p>A function <span class="math">f : (X,d) → (Y,d')</span> is <strong>uniformly continuous</strong> if:</p>
-    <div class="math-block">∀ ε > 0, ∃ δ > 0 : d(x, y) < δ ⟹ d'(f(x), f(y)) < ε  (for ALL x, y)</div>
-    <p><strong>Key difference from continuity:</strong> In uniform continuity, the <em>same δ works for every point</em>. In ordinary continuity, δ can depend on the point x₀.</p>
-  </div>
-
-  <div class="hint-box reveal">
-    <span class="hint-tag">🇮🇳 Samjhao Simply</span>
-    Ordinary continuity: har jagah "thoda zoom in karo" toh function smooth lagta hai — lekin kahin zyada zoom karna pad sakta hai, kahin kam. Uniform continuity: ek hi "zoom level" pe poori line smooth lagti hai!
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Compact ⟹ Uniform Continuity</div>
-    <p>If <span class="math">f : K → Y</span> is continuous and <span class="math">K</span> is compact, then <span class="math">f</span> is <strong>uniformly continuous</strong> on <span class="math">K</span>.</p>
-  </div>
-  <div class="proof-box reveal">
-    <div class="box-title">Proof Sketch</div>
-    <p>Given <span class="math">ε &gt; 0</span>, for each <span class="math">x ∈ K</span> choose <span class="math">δ(x)</span> by continuity. The balls <span class="math">{B(x, δ(x)/2)}</span> cover <span class="math">K</span>. By compactness, finitely many cover: <span class="math">B(x₁, δ₁/2), ..., B(xₙ, δₙ/2)</span>. Let <span class="math">δ = min(δᵢ/2)</span>. One can verify this <span class="math">δ</span> works uniformly for all pairs. <strong>∎</strong></p>
-  </div>
-
-  <div class="theorem reveal">
-    <div class="box-title">Extreme Value Theorem</div>
-    <p>If <span class="math">f : K → ℝ</span> is continuous and <span class="math">K</span> is compact, then <span class="math">f</span> attains its maximum and minimum on <span class="math">K</span>.</p>
-    <p style="margin:0"><em>Intuition:</em> Ek continuous function ek compact set par hamesha apni max aur min value "reach" karti hai — na ki bas "approach" karti hai!</p>
-  </div>
-
-  <div class="visual-box reveal">
-    <div class="vis-label">▸ Compactness — Open Cover Visualiser</div>
-    <canvas id="compact-canvas" height="280"></canvas>
-    <div class="vis-controls">
-      <button class="vis-btn active" onclick="setCompactMode('compact',this)">Compact [−1,1]</button>
-      <button class="vis-btn" onclick="setCompactMode('noncompact',this)">Non-compact (−1,1)</button>
-    </div>
-    <div class="vis-info" id="compact-info">Compact set par finite subcover hamesha kaam karti hai. Notice how fewer covers are needed.</div>
-  </div>
-
-</div>
-</section>
-
-<!-- ═══════════════════════════ QUICK REFERENCE ═══════════════════════════ -->
-<section class="bg-dark">
-<div class="container">
-  <div class="reveal">
-    <div class="section-number-light">Quick Reference</div>
-    <h2 style="color:var(--text-on-dark)">Key Results at a Glance</h2>
-  </div>
-  <table class="styled-table reveal">
-    <tr>
-      <th>Property</th><th>Definition</th><th>Key Theorem</th>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Open Set</td>
-      <td style="color:#b0c8e8">Every point is an interior point</td>
-      <td style="color:#b0c8e8">Arbitrary unions; finite intersections</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Closed Set</td>
-      <td style="color:#b0c8e8">Contains all its limit points</td>
-      <td style="color:#b0c8e8">Arbitrary intersections; finite unions</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Convergent Seq</td>
-      <td style="color:#b0c8e8">d(xₙ, L) → 0</td>
-      <td style="color:#b0c8e8">Unique limit; implies Cauchy</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Cauchy Seq</td>
-      <td style="color:#b0c8e8">d(xₘ, xₙ) → 0 as m,n → ∞</td>
-      <td style="color:#b0c8e8">Convergent in complete spaces</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Complete</td>
-      <td style="color:#b0c8e8">Every Cauchy seq converges</td>
-      <td style="color:#b0c8e8">ℝ is complete; ℚ is not</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Connected</td>
-      <td style="color:#b0c8e8">Cannot be split into separated sets</td>
-      <td style="color:#b0c8e8">Continuous images are connected (IVT)</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Compact (ℝⁿ)</td>
-      <td style="color:#b0c8e8">Every open cover has finite subcover</td>
-      <td style="color:#b0c8e8">⟺ Closed & Bounded (Heine-Borel)</td>
-    </tr>
-    <tr>
-      <td style="color:#e0d4ff;font-weight:600">Uniform Cont.</td>
-      <td style="color:#b0c8e8">One δ works for ALL points</td>
-      <td style="color:#b0c8e8">Continuous on compact ⟹ Unif. Cont.</td>
-    </tr>
-  </table>
-</div>
-</section>
-
-<!-- ═══════════════════════════ REVIEWS ═══════════════════════════ -->
-<section id="reviews" id="review-section" style="background:#0f0f1e;">
-<div class="container">
-
-  <div class="reveal" style="text-align:center; margin-bottom:2.5rem">
-    <div class="section-number-light">Feedback</div>
-    <h2 style="color:var(--text-on-dark)">Share Your Feedback</h2>
-    <p style="color:rgba(240,236,224,0.6); max-width:520px; margin:0 auto">Prerna Mehra ke liye apna review bhejein — directly email jayega! (<a href="mailto:mehraprerna@gmail.com" style="color:#7ec8f0">mehraprerna@gmail.com</a>)</p>
-  </div>
-
-  <div class="review-form reveal">
-    <div class="form-group">
-      <label>Your Name</label>
-      <input type="text" id="rev-name" placeholder="Aapka naam...">
-    </div>
-    <div class="form-group">
-      <label>Your Email (optional)</label>
-      <input type="email" id="rev-email" placeholder="aap@example.com">
-    </div>
-    <div class="form-group">
-      <label>Rating</label>
-      <div class="star-row" id="star-row">
-        <span class="star" data-v="1">★</span>
-        <span class="star" data-v="2">★</span>
-        <span class="star" data-v="3">★</span>
-        <span class="star" data-v="4">★</span>
-        <span class="star" data-v="5">★</span>
+        <p>
+          Distance determined by the largest coordinate change.
+        </p>
       </div>
+
     </div>
-    <div class="form-group">
-      <label>How Helpful Was This?</label>
-      <select id="rev-helpful">
-        <option value="">Select...</option>
-        <option>Bahut helpful — sab samajh aaya! 🎉</option>
-        <option>Kaafi helpful — thoda aur chahiye</option>
-        <option>Theek hai — basics clear hue</option>
-        <option>Mushkil laga — aur simplify karein</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Your Review / Suggestions</label>
-      <textarea id="rev-message" placeholder="Kya achha laga? Kya aur chahiye? Koi doubt?"></textarea>
-    </div>
-    <button class="submit-btn" onclick="sendReview()">Send Review via Email →</button>
-    <div id="form-status">✓ Email app khuljayega — review bhejein!</div>
+
   </div>
 
-</div>
 </section>
 
-<!-- FOOTER -->
+<!-- =====================================================
+     TOPOLOGY
+===================================================== -->
+
+<section id="topology">
+
+  <div class="container reveal">
+
+    <div class="section-label">
+      Topology
+    </div>
+
+    <h2>
+      Open Sets & Neighborhoods
+    </h2>
+
+    <p class="lead">
+      Open balls define the topology of a metric space.
+      From them arise continuity, convergence, compactness,
+      and modern analysis itself.
+    </p>
+
+    <div class="panel">
+
+      <div class="formula">
+        B(x,r) = { y ∈ X : d(x,y) < r }
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- =====================================================
+     SEQUENCES
+===================================================== -->
+
+<section id="sequences">
+
+  <div class="container reveal">
+
+    <div class="section-label">
+      Sequences
+    </div>
+
+    <h2>
+      Convergence & Cauchy Sequences
+    </h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>Convergent</h3>
+
+        <p>
+          Terms approach a fixed limit point.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Cauchy</h3>
+
+        <p>
+          Terms become arbitrarily close to one another.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Bounded</h3>
+
+        <p>
+          All terms remain inside a finite region.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- =====================================================
+     COMPLETENESS
+===================================================== -->
+
+<section id="complete">
+
+  <div class="container reveal">
+
+    <div class="section-label">
+      Completeness
+    </div>
+
+    <h2>
+      Complete Metric Spaces
+    </h2>
+
+    <p class="lead">
+      A metric space is complete if every Cauchy sequence
+      converges inside the space itself.
+    </p>
+
+    <div class="panel">
+
+      <div class="formula">
+        Every Cauchy sequence converges in X
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
 <footer>
-  <div style="font-size:1rem; color:var(--gold); font-family:'Playfair Display',serif; margin-bottom:0.5rem">Metric Spaces — A Visual Journey</div>
-  <div>Created by <span class="gold">Prerna Mehra</span> · 24 May 2026</div>
-  <div style="margin-top:0.4rem">Contact: <a href="mailto:mehraprerna@gmail.com">mehraprerna@gmail.com</a></div>
-  <div style="margin-top:1rem; opacity:0.5; font-size:0.68rem">For educational use · Real Analysis · Metric Spaces</div>
+
+  Built by Prerna Mehra • Metric Spaces • 2026
+
 </footer>
 
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
 <script>
-// ─── PROGRESS BAR ───
-window.addEventListener('scroll', () => {
-  const h = document.documentElement;
-  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-  document.getElementById('progress').style.width = pct + '%';
+
+/* =====================================================
+   PROGRESS BAR
+===================================================== */
+
+const progress = document.getElementById("progress");
+
+window.addEventListener("scroll", () => {
+
+  const total =
+    document.body.scrollHeight - window.innerHeight;
+
+  const current =
+    (window.scrollY / total) * 100;
+
+  progress.style.width = current + "%";
 });
 
-// ─── REVEAL ───
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.07 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+/* =====================================================
+   REVEAL
+===================================================== */
 
-// ─── STAR RATING ───
-let starVal = 0;
-document.querySelectorAll('.star').forEach(s => {
-  s.addEventListener('click', () => {
-    starVal = +s.dataset.v;
-    document.querySelectorAll('.star').forEach(st => {
-      st.classList.toggle('on', +st.dataset.v <= starVal);
-    });
-  });
-  s.addEventListener('mouseenter', () => {
-    document.querySelectorAll('.star').forEach(st => {
-      st.classList.toggle('on', +st.dataset.v <= +s.dataset.v);
-    });
-  });
-});
-document.getElementById('star-row').addEventListener('mouseleave', () => {
-  document.querySelectorAll('.star').forEach(st => {
-    st.classList.toggle('on', +st.dataset.v <= starVal);
-  });
-});
+const reveals =
+  document.querySelectorAll(".reveal");
 
-function sendReview() {
-  const name = document.getElementById('rev-name').value.trim() || 'Anonymous';
-  const email = document.getElementById('rev-email').value.trim();
-  const helpful = document.getElementById('rev-helpful').value;
-  const msg = document.getElementById('rev-message').value.trim();
-  const rating = starVal ? '★'.repeat(starVal) + '☆'.repeat(5-starVal) : 'Not rated';
-  const body = `Name: ${name}\nEmail: ${email || 'Not provided'}\nRating: ${rating}\nHelpfulness: ${helpful || 'Not selected'}\n\nReview:\n${msg}`;
-  const subject = `Metric Spaces Review from ${name}`;
-  window.location.href = `mailto:mehraprerna@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  document.getElementById('form-status').style.display = 'block';
-}
+const observer =
+  new IntersectionObserver(entries => {
 
-// ─── HERO CANVAS ───
-(function() {
-  const c = document.getElementById('hero-canvas');
-  const ctx = c.getContext('2d');
-  let w, h, pts = [];
-  function resize() {
-    w = c.width = c.offsetWidth;
-    h = c.height = c.offsetHeight;
-    pts = Array.from({length: 60}, () => ({
-      x: Math.random()*w, y: Math.random()*h,
-      vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4
-    }));
-  }
-  resize();
-  window.addEventListener('resize', resize);
-  function draw() {
-    ctx.clearRect(0,0,w,h);
-    pts.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if(p.x<0||p.x>w) p.vx*=-1;
-      if(p.y<0||p.y>h) p.vy*=-1;
-      ctx.beginPath(); ctx.arc(p.x,p.y,2,0,6.28);
-      ctx.fillStyle='rgba(240,192,64,0.6)'; ctx.fill();
-    });
-    pts.forEach((p,i) => pts.forEach((q,j) => {
-      if(j<=i) return;
-      const d = Math.hypot(p.x-q.x, p.y-q.y);
-      if(d < 120) {
-        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
-        ctx.strokeStyle = `rgba(240,192,64,${0.25*(1-d/120)})`;
-        ctx.lineWidth = 0.5; ctx.stroke();
+    entries.forEach(entry => {
+
+      if(entry.isIntersecting){
+
+        entry.target.classList.add("active");
+
       }
-    }));
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 
-// ─── TRIANGLE CANVAS ───
-(function() {
-  const c = document.getElementById('triangle-canvas');
-  const ctx = c.getContext('2d');
-  let W, H;
-  function resize() { W = c.width = c.offsetWidth; H = c.height = c.offsetHeight; }
-  resize(); window.addEventListener('resize', resize);
-  const pts = [{x:0.2,y:0.7},{x:0.6,y:0.25},{x:0.82,y:0.72}];
-  const cols = ['#f0c040','#4a9fd4','#e05c3a'];
-  const labels = ['x','y','z'];
-  let drag = -1;
-  function toPx(p) { return {x: p.x*W, y: p.y*H}; }
-  function dist(a,b) { return Math.hypot(a.x-b.x,a.y-b.y); }
-  function distNorm(a,b) {
-    const dx = (a.x-b.x)*3, dy = (a.y-b.y)*2;
-    return Math.sqrt(dx*dx+dy*dy);
-  }
-  function draw() {
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#0d0d18'; ctx.fillRect(0,0,W,H);
-    const [x,y,z] = pts.map(toPx);
-    const dxy = distNorm(pts[0],pts[1]).toFixed(3);
-    const dyz = distNorm(pts[1],pts[2]).toFixed(3);
-    const dxz = distNorm(pts[0],pts[2]).toFixed(3);
-    // lines
-    [[x,z,'#e05c3a',0.4],[x,y,'#f0c040',0.7],[y,z,'#4a9fd4',0.7]].forEach(([a,b,col,al]) => {
-      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
-      ctx.strokeStyle = col; ctx.globalAlpha = al; ctx.lineWidth = 2;
-      ctx.setLineDash(al<0.5?[6,4]:[]);
-      ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
     });
-    pts.forEach((p,i) => {
-      const px = toPx(p);
-      ctx.beginPath(); ctx.arc(px.x,px.y,10,0,6.28);
-      ctx.fillStyle = cols[i]; ctx.fill();
-      ctx.fillStyle='#0d0d18';
-      ctx.font='bold 11px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(labels[i], px.x, px.y);
-    });
-    ctx.font = '13px JetBrains Mono,monospace'; ctx.textAlign='left'; ctx.textBaseline='top';
-    const lhs = parseFloat(dxz), rhs = parseFloat(dxy)+parseFloat(dyz);
-    const ok = lhs <= rhs + 0.001;
-    ctx.fillStyle = '#e0d4ff'; ctx.fillText(`d(x,z) = ${dxz}`, 14, 14);
-    ctx.fillStyle = '#a0e0ff'; ctx.fillText(`d(x,y) + d(y,z) = ${(parseFloat(dxy)+parseFloat(dyz)).toFixed(3)}`, 14, 34);
-    ctx.fillStyle = ok ? '#5ecb6e' : '#e05c3a';
-    ctx.fillText(ok ? '✓ Triangle Inequality holds!' : '✗ VIOLATED', 14, 54);
-    document.getElementById('triangle-info').textContent =
-      `d(x,z)=${dxz} ≤ d(x,y)+d(y,z)=${(parseFloat(dxy)+parseFloat(dyz)).toFixed(3)} → ${ok?'TRUE ✓':'FALSE ✗'}`;
-  }
-  c.addEventListener('mousedown', e => {
-    const r = c.getBoundingClientRect();
-    const mx = (e.clientX-r.left)/W, my = (e.clientY-r.top)/H;
-    drag = pts.findIndex(p => Math.hypot(p.x-mx,p.y-my) < 0.06);
-  });
-  c.addEventListener('mousemove', e => {
-    if(drag<0) return;
-    const r = c.getBoundingClientRect();
-    pts[drag].x = Math.max(0.02,Math.min(0.98,(e.clientX-r.left)/W));
-    pts[drag].y = Math.max(0.02,Math.min(0.98,(e.clientY-r.top)/H));
-    draw();
-  });
-  c.addEventListener('mouseup', () => drag=-1);
-  c.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const r = c.getBoundingClientRect();
-    const t = e.touches[0];
-    const mx = (t.clientX-r.left)/W, my = (t.clientY-r.top)/H;
-    drag = pts.findIndex(p => Math.hypot(p.x-mx,p.y-my) < 0.1);
-  });
-  c.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if(drag<0) return;
-    const r = c.getBoundingClientRect();
-    const t = e.touches[0];
-    pts[drag].x = Math.max(0.02,Math.min(0.98,(t.clientX-r.left)/W));
-    pts[drag].y = Math.max(0.02,Math.min(0.98,(t.clientY-r.top)/H));
-    draw();
-  }, {passive:false});
-  c.addEventListener('touchend', () => drag=-1);
-  draw();
-})();
 
-// ─── BALL CANVAS ───
-let currentMetric = 'euclidean';
-const metricFns = {
-  euclidean: (x,y) => Math.sqrt(x*x+y*y),
-  manhattan: (x,y) => Math.abs(x)+Math.abs(y),
-  chebyshev: (x,y) => Math.max(Math.abs(x),Math.abs(y)),
-  discrete:  (x,y) => (Math.abs(x)<0.01&&Math.abs(y)<0.01)?0:1
-};
-function selectMetric(name, el) {
-  currentMetric = name;
-  document.querySelectorAll('.metric-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  drawBall();
+  },{
+    threshold:0.12
+  });
+
+reveals.forEach(r => observer.observe(r));
+
+/* =====================================================
+   NETWORK BACKGROUND
+===================================================== */
+
+const canvas =
+  document.getElementById("hero-canvas");
+
+const ctx =
+  canvas.getContext("2d");
+
+function resizeCanvas(){
+
+  canvas.width =
+    window.innerWidth;
+
+  canvas.height =
+    window.innerHeight;
 }
-function drawBall() {
-  const c = document.getElementById('ball-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  const r = parseFloat(document.getElementById('radius-slider').value);
-  document.getElementById('radius-val').textContent = r.toFixed(2);
-  ctx.fillStyle='#0d0d18'; ctx.fillRect(0,0,W,H);
-  const cx = W/2, cy = H/2, scale = Math.min(W,H)/6;
-  // grid
-  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
-  for(let i=-3;i<=3;i++){
-    ctx.beginPath(); ctx.moveTo(cx+i*scale,0); ctx.lineTo(cx+i*scale,H); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,cy+i*scale); ctx.lineTo(W,cy+i*scale); ctx.stroke();
-  }
-  ctx.strokeStyle='rgba(240,192,64,0.3)'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
-  // ball
-  const fn = metricFns[currentMetric];
-  const res = 2;
-  ctx.beginPath();
-  let first = true;
-  for(let px=0;px<W;px+=res) {
-    for(let py=0;py<H;py+=res) {
-      const wx=(px-cx)/scale, wy=(py-cy)/scale;
-      const d = fn(wx,wy);
-      if(Math.abs(d-r)<0.045*r+0.04) {
-        if(first){ctx.moveTo(px,py); first=false;}
-        else ctx.lineTo(px,py);
+
+resizeCanvas();
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+/* PARTICLES */
+
+const particles = [];
+
+const PARTICLE_COUNT = 120;
+
+for(let i=0;i<PARTICLE_COUNT;i++){
+
+  particles.push({
+
+    x: Math.random() * canvas.width,
+
+    y: Math.random() * canvas.height,
+
+    vx: (Math.random()-0.5) * 0.4,
+
+    vy: (Math.random()-0.5) * 0.4,
+
+    r: Math.random()*2 + 1
+
+  });
+
+}
+
+function animate(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  /* CONNECTIONS */
+
+  for(let i=0;i<particles.length;i++){
+
+    for(let j=i+1;j<particles.length;j++){
+
+      const dx =
+        particles[i].x - particles[j].x;
+
+      const dy =
+        particles[i].y - particles[j].y;
+
+      const dist =
+        Math.sqrt(dx*dx + dy*dy);
+
+      if(dist < 140){
+
+        ctx.beginPath();
+
+        ctx.strokeStyle =
+          `rgba(122,162,255,${
+            1 - dist/140
+          })`;
+
+        ctx.lineWidth = 0.7;
+
+        ctx.moveTo(
+          particles[i].x,
+          particles[i].y
+        );
+
+        ctx.lineTo(
+          particles[j].x,
+          particles[j].y
+        );
+
+        ctx.stroke();
+
       }
-    }
-  }
-  // fill ball
-  const imgData = ctx.getImageData(0,0,W,H);
-  const data = imgData.data;
-  for(let px=0;px<W;px+=1){
-    for(let py=0;py<H;py+=1){
-      const wx=(px-cx)/scale, wy=(py-cy)/scale;
-      const d=fn(wx,wy);
-      if(d<r){
-        const idx=(py*W+px)*4;
-        data[idx]=74; data[idx+1]=159; data[idx+2]=212; data[idx+3]=40;
-      }
-    }
-  }
-  ctx.putImageData(imgData,0,0);
-  // border
-  const metricColors = {euclidean:'#4a9fd4',manhattan:'#f0c040',chebyshev:'#e05c3a',discrete:'#5ecb6e'};
-  const col = metricColors[currentMetric] || '#f0c040';
-  // draw shape outline properly
-  if(currentMetric==='discrete') {
-    ctx.beginPath(); ctx.arc(cx,cy,4,0,6.28);
-    ctx.fillStyle=col; ctx.fill();
-    if(r>=1) {
-      ctx.beginPath(); ctx.arc(cx,cy,3,0,6.28);
-      ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-    }
-  } else {
-    ctx.strokeStyle=col; ctx.lineWidth=2.5;
-    if(currentMetric==='euclidean'){
-      ctx.beginPath(); ctx.arc(cx,cy,r*scale,0,6.28); ctx.stroke();
-    } else if(currentMetric==='manhattan'){
-      const rs=r*scale;
-      ctx.beginPath(); ctx.moveTo(cx,cy-rs); ctx.lineTo(cx+rs,cy);
-      ctx.lineTo(cx,cy+rs); ctx.lineTo(cx-rs,cy); ctx.closePath(); ctx.stroke();
-    } else if(currentMetric==='chebyshev'){
-      const rs=r*scale;
-      ctx.strokeRect(cx-rs,cy-rs,2*rs,2*rs);
-    }
-  }
-  ctx.beginPath(); ctx.arc(cx,cy,5,0,6.28); ctx.fillStyle=col; ctx.fill();
-  const names = {euclidean:'Euclidean — perfect circle',manhattan:'Manhattan — diamond (rotated square)',chebyshev:'Chebyshev — square',discrete:'Discrete — point (or all-or-nothing)'};
-  document.getElementById('ball-info').textContent = names[currentMetric] + ` | r = ${r.toFixed(2)}`;
-}
-document.getElementById('radius-slider').addEventListener('input', drawBall);
-window.addEventListener('resize', drawBall);
-setTimeout(drawBall, 100);
 
-// ─── OPEN/CLOSED CANVAS ───
-let openMode = 'open';
-function setOpenMode(mode, el) {
-  openMode = mode;
-  document.querySelectorAll('#topology .vis-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  drawOpen();
-}
-function drawOpen() {
-  const c = document.getElementById('open-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  ctx.fillStyle='#0d0d18'; ctx.fillRect(0,0,W,H);
-  const cx=W/2, cy=H/2, R=Math.min(W,H)*0.3;
-  ctx.fillStyle='rgba(74,159,212,0.18)';
-  ctx.beginPath(); ctx.arc(cx,cy,R,0,6.28); ctx.fill();
-  if(openMode==='open') {
-    ctx.strokeStyle='#4a9fd4'; ctx.lineWidth=2.5; ctx.setLineDash([6,4]);
-    ctx.beginPath(); ctx.arc(cx,cy,R,0,6.28); ctx.stroke(); ctx.setLineDash([]);
-    const label = 'Open Set — boundary NOT included';
-    const col = '#4a9fd4';
-    ctx.fillStyle=col; ctx.font='13px Nunito,sans-serif'; ctx.textAlign='center';
-    ctx.fillText(label, cx, cy+R+24);
-    // show breathing room
-    const bx = cx+R, by = cy;
-    ctx.strokeStyle='rgba(240,192,64,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.arc(bx,by,18,0,6.28); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='var(--gold)'; ctx.font='11px JetBrains Mono,monospace';
-    ctx.fillText('breathing room', bx+24, by-5);
-    document.getElementById('open-info').textContent = 'Open set: har boundary point ke aas-paas thoda "breathing room" — set ke bahar bhi space hai.';
-  } else if(openMode==='closed') {
-    ctx.strokeStyle='#e05c3a'; ctx.lineWidth=3; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.arc(cx,cy,R,0,6.28); ctx.stroke();
-    ctx.fillStyle='#e05c3a'; ctx.font='13px Nunito,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('Closed Set — boundary IS included', cx, cy+R+24);
-    for(let a=0;a<6.28;a+=0.4) {
-      const bx=cx+R*Math.cos(a), by=cy+R*Math.sin(a);
-      ctx.beginPath(); ctx.arc(bx,by,4,0,6.28);
-      ctx.fillStyle='#e05c3a'; ctx.fill();
     }
-    document.getElementById('open-info').textContent = 'Closed set: boundary ke points bhi included hain — complement is open.';
-  } else {
-    // half open [left, right)
-    ctx.strokeStyle='#f0c040'; ctx.lineWidth=2.5;
-    const x1=cx-R, x2=cx+R, y0=cy;
-    ctx.beginPath(); ctx.moveTo(x1,y0); ctx.lineTo(x2,y0); ctx.stroke();
-    ctx.beginPath(); ctx.arc(x1,y0,6,0,6.28); ctx.fillStyle='#f0c040'; ctx.fill();
-    ctx.beginPath(); ctx.arc(x2,y0,6,0,6.28); ctx.strokeStyle='#f0c040'; ctx.lineWidth=2.5; ctx.stroke();
-    ctx.fillStyle='rgba(13,13,24,0.9)'; ctx.fill();
-    ctx.fillStyle='#f0c040'; ctx.font='13px Nunito,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('[a, b)  — Half-open: left closed, right open', cx, y0+30);
-    ctx.fillText('Neither open nor closed', cx, y0+50);
-    document.getElementById('open-info').textContent = 'Half-open interval [a,b): na poori tarah open, na poori tarah closed.';
-  }
-}
-window.addEventListener('resize', drawOpen);
-setTimeout(drawOpen, 150);
 
-// ─── EPS-DELTA CANVAS ───
-(function(){
-  const c = document.getElementById('epsdelta-canvas');
-  const ctx = c.getContext('2d');
-  const sl = document.getElementById('eps-slider');
-  const sv = document.getElementById('eps-val');
-  function draw(){
-    const eps = parseFloat(sl.value);
-    sv.textContent = eps.toFixed(2);
-    const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-    ctx.fillStyle='#0d0d18'; ctx.fillRect(0,0,W,H);
-    const mx=0.5, my=0.5, sx=W*0.42, sy=H*0.38;
-    const x0=mx*W, y0=my*H;
-    ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(x0,20); ctx.lineTo(x0,H-20); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(20,y0); ctx.lineTo(W-20,y0); ctx.stroke();
-    // f(x)=x^2 centered at x0=0.5 → f=0.25, scaled
-    const f = t => 0.5-(t-0.5)*(t-0.5)*1.5;
-    ctx.strokeStyle='#4a9fd4'; ctx.lineWidth=2.5;
+  }
+
+  /* PARTICLES */
+
+  particles.forEach(p => {
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if(p.x < 0 || p.x > canvas.width)
+      p.vx *= -1;
+
+    if(p.y < 0 || p.y > canvas.height)
+      p.vy *= -1;
+
     ctx.beginPath();
-    for(let i=0;i<=200;i++){
-      const t=i/200;
-      const px=t*W, py=H*(1-f(t));
-      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
-    }
-    ctx.stroke();
-    const pt = 0.6;
-    const fpt = f(pt);
-    const px0 = pt*W, py0 = H*(1-fpt);
-    // eps band on y
-    ctx.fillStyle='rgba(224,92,58,0.2)';
-    ctx.fillRect(20, H*(1-fpt-eps), W-40, H*2*eps);
-    ctx.strokeStyle='#e05c3a'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(20,H*(1-fpt-eps)); ctx.lineTo(W-20,H*(1-fpt-eps)); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(20,H*(1-fpt+eps)); ctx.lineTo(W-20,H*(1-fpt+eps)); ctx.stroke();
-    ctx.setLineDash([]);
-    // find delta
-    const delta = Math.sqrt(fpt+eps)-pt;
-    const dlow = Math.max(0, pt-delta), dhigh = Math.min(1, pt+delta);
-    ctx.fillStyle='rgba(74,159,212,0.2)';
-    ctx.fillRect(dlow*W, 20, (dhigh-dlow)*W, H-40);
-    ctx.strokeStyle='#4a9fd4'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(dlow*W,20); ctx.lineTo(dlow*W,H-20); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(dhigh*W,20); ctx.lineTo(dhigh*W,H-20); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.beginPath(); ctx.arc(px0,py0,6,0,6.28); ctx.fillStyle='#f0c040'; ctx.fill();
-    ctx.fillStyle='rgba(240,192,64,0.9)'; ctx.font='12px JetBrains Mono,monospace'; ctx.textAlign='left';
-    ctx.fillText(`ε = ${eps.toFixed(2)}  δ ≈ ${delta.toFixed(3)}`, px0+12, py0-12);
-    ctx.fillStyle='#e05c3a'; ctx.fillText('ε-band', W-60, H*(1-fpt)-5);
-    ctx.fillStyle='#4a9fd4'; ctx.fillText('δ-band', dlow*W+4, 35);
-    document.getElementById('eps-info').textContent = `ε = ${eps.toFixed(2)}: jab input δ=${delta.toFixed(3)} ke andar ho, output ε ke andar rahega.`;
-  }
-  sl.addEventListener('input', draw);
-  window.addEventListener('resize', draw);
-  setTimeout(draw, 200);
-})();
 
-// ─── SEQUENCE CANVAS ───
-let seqType = 'conv';
-function setSeqType(t, el) {
-  seqType = t;
-  document.querySelectorAll('#sequences .vis-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  drawSeq();
-}
-function drawSeq() {
-  const c = document.getElementById('seq-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  ctx.fillStyle='#ede8d8'; ctx.fillRect(0,0,W,H);
-  const N = 30;
-  const seqs = {
-    conv: n => 1/n,
-    osc:  n => Math.pow(-1,n),
-    cauchy: n => {
-      let x = 1;
-      for(let i=0;i<n+1;i++) x = (x + 2/x)/2;
-      return (x-1.414)/2;
-    }
-  };
-  const vals = Array.from({length:N},(_,i)=>seqs[seqType](i+1));
-  const minV = Math.min(...vals)-0.15, maxV = Math.max(...vals)+0.15;
-  const toY = v => H*0.1 + (H*0.8)*(1-(v-minV)/(maxV-minV));
-  const toX = i => W*0.08 + (W*0.85)*(i/(N-1));
-  ctx.strokeStyle='rgba(13,13,20,0.12)'; ctx.lineWidth=1;
-  [-1,0,1].forEach(v => {
-    if(v>=minV&&v<=maxV){
-      ctx.beginPath(); ctx.moveTo(0,toY(v)); ctx.lineTo(W,toY(v));
-      ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(13,13,20,0.5)'; ctx.font='10px JetBrains Mono,monospace';
-      ctx.fillText(v, 4, toY(v)-3);
-    }
-  });
-  if(seqType==='conv'||seqType==='cauchy'){
-    const lim = seqType==='conv'?0:0;
-    if(lim>=minV&&lim<=maxV){
-      ctx.strokeStyle='rgba(224,92,58,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([6,3]);
-      ctx.beginPath(); ctx.moveTo(0,toY(lim)); ctx.lineTo(W,toY(lim)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#e05c3a'; ctx.font='11px JetBrains Mono,monospace';
-      ctx.fillText('Limit = ' + lim.toFixed(3), W*0.7, toY(lim)-6);
-    }
-  }
-  ctx.strokeStyle='rgba(74,159,212,0.4)'; ctx.lineWidth=1.5;
-  ctx.beginPath();
-  vals.forEach((v,i) => i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)));
-  ctx.stroke();
-  vals.forEach((v,i) => {
-    ctx.beginPath(); ctx.arc(toX(i),toY(v),4,0,6.28);
-    const age = 1-i/N;
-    ctx.fillStyle = seqType==='osc' ? '#f0c040' : `rgba(74,159,212,${0.4+0.6*(1-i/N)})`;
+    ctx.arc(
+      p.x,
+      p.y,
+      p.r,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle =
+      "rgba(255,255,255,0.9)";
+
     ctx.fill();
+
   });
-  const infos = {
-    conv:'1/n → 0: Terms get closer to 0. Ye ek Cauchy aur convergent sequence hai.',
-    osc:'(-1)ⁿ: Terms bounce between +1 and -1. Na Cauchy, na convergent!',
-    cauchy:'√2 approximations in ℚ: Cauchy in ℚ, lekin limit (√2) ℚ mein nahi — isliye ℚ incomplete hai.'
-  };
-  document.getElementById('seq-info').textContent = infos[seqType];
-}
-window.addEventListener('resize', drawSeq);
-setTimeout(drawSeq, 250);
 
-// ─── COMPLETE CANVAS ───
-let completeMode = 'complete';
-function setCompleteMode(m, el) {
-  completeMode = m;
-  document.querySelectorAll('#completeness .vis-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  drawComplete();
+  requestAnimationFrame(animate);
 }
-function drawComplete() {
-  const c = document.getElementById('complete-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  ctx.fillStyle='#0d0d18'; ctx.fillRect(0,0,W,H);
-  const N = 20;
-  const cx = W*0.5, cy = H*0.5;
-  if(completeMode==='complete') {
-    // Show sequence converging to a limit that EXISTS in space
-    const lx = W*0.75;
-    for(let i=0;i<N;i++){
-      const t = 1/(i+1);
-      const x = lx - t*W*0.5;
-      ctx.beginPath(); ctx.arc(x,cy,4,0,6.28);
-      ctx.fillStyle=`rgba(74,159,212,${0.3+0.7*(1-t)})`; ctx.fill();
-    }
-    ctx.beginPath(); ctx.arc(lx,cy,8,0,6.28);
-    ctx.strokeStyle='#5ecb6e'; ctx.lineWidth=2.5; ctx.stroke();
-    ctx.fillStyle='#5ecb6e'; ctx.font='12px JetBrains Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('Limit EXISTS in ℝ ✓', lx, cy-20);
-    ctx.fillStyle='rgba(240,236,224,0.6)'; ctx.fillText('(Cauchy sequence → converges)', cx, cy+40);
-    document.getElementById('complete-info').textContent = 'ℝ complete hai: Cauchy sequence ka limit hamesha ℝ mein hi hai.';
-  } else {
-    // √2 in ℚ
-    const lx = W*0.75;
-    for(let i=0;i<N;i++){
-      const t = 1/(i+1);
-      const x = lx - t*W*0.45;
-      ctx.beginPath(); ctx.arc(x,cy,4,0,6.28);
-      ctx.fillStyle=`rgba(240,192,64,${0.3+0.7*(1-t)})`; ctx.fill();
-    }
-    ctx.beginPath(); ctx.arc(lx,cy,8,0,6.28);
-    ctx.strokeStyle='#e05c3a'; ctx.lineWidth=2.5; ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='#e05c3a'; ctx.font='12px JetBrains Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('√2 ∉ ℚ  — MISSING! ✗', lx+5, cy-20);
-    ctx.fillStyle='rgba(240,236,224,0.6)'; ctx.fillText('Sequence Cauchy in ℚ, but limit NOT in ℚ', cx, cy+40);
-    document.getElementById('complete-info').textContent = 'ℚ incomplete: 1, 1.4, 1.41, 1.414, ... Cauchy hai lekin limit √2 ℚ mein nahi!';
-  }
-}
-window.addEventListener('resize', drawComplete);
-setTimeout(drawComplete, 300);
 
-// ─── CONNECTED CANVAS ───
-let connMode = 'connected';
-function setConnMode(m, el) {
-  connMode = m;
-  document.querySelectorAll('#connected .vis-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  drawConn();
-}
-function drawConn() {
-  const c = document.getElementById('connected-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  ctx.fillStyle='#ede8d8'; ctx.fillRect(0,0,W,H);
-  if(connMode==='connected'){
-    ctx.fillStyle='rgba(58,191,159,0.3)';
-    ctx.beginPath(); ctx.ellipse(W/2,H/2,W*0.3,H*0.3,0,0,6.28); ctx.fill();
-    ctx.strokeStyle='#3abf9f'; ctx.lineWidth=2.5; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.ellipse(W/2,H/2,W*0.3,H*0.3,0,0,6.28); ctx.stroke();
-    ctx.fillStyle='#3abf9f'; ctx.font='13px Nunito,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('Connected Set', W/2, H/2);
-    ctx.fillText('(ek continuous piece)', W/2, H/2+20);
-    document.getElementById('conn-info').textContent = 'Connected: set ko do alag parts mein nahi tod sakte separated sets ke roop mein.';
-  } else if(connMode==='disconnected'){
-    const r = H*0.22;
-    ctx.fillStyle='rgba(224,92,58,0.25)';
-    ctx.beginPath(); ctx.arc(W*0.3,H/2,r,0,6.28); ctx.fill();
-    ctx.strokeStyle='#e05c3a'; ctx.lineWidth=2.5;
-    ctx.beginPath(); ctx.arc(W*0.3,H/2,r,0,6.28); ctx.stroke();
-    ctx.fillStyle='rgba(74,159,212,0.25)';
-    ctx.beginPath(); ctx.arc(W*0.72,H/2,r,0,6.28); ctx.fill();
-    ctx.strokeStyle='#4a9fd4'; ctx.lineWidth=2.5;
-    ctx.beginPath(); ctx.arc(W*0.72,H/2,r,0,6.28); ctx.stroke();
-    ctx.fillStyle='#e05c3a'; ctx.font='12px Nunito,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('A', W*0.3, H/2); ctx.fillStyle='#4a9fd4'; ctx.fillText('B', W*0.72, H/2);
-    ctx.fillStyle='#666'; ctx.fillText('Disconnected: A ∪ B with Ā∩B = A∩B̄ = ∅', W/2, H*0.88);
-    document.getElementById('conn-info').textContent = 'Disconnected: A aur B separated hain — do alag "tukde".';
-  } else {
-    // separated: A=(-1,0), B=(0,1) visual as line segments
-    const y0=H/2, x1=W*0.15, x2=W*0.46, x3=W*0.54, x4=W*0.85;
-    ctx.strokeStyle='#e05c3a'; ctx.lineWidth=8; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(x1,y0); ctx.lineTo(x2,y0); ctx.stroke();
-    ctx.strokeStyle='#4a9fd4';
-    ctx.beginPath(); ctx.moveTo(x3,y0); ctx.lineTo(x4,y0); ctx.stroke();
-    ctx.fillStyle='#e05c3a'; ctx.font='12px JetBrains Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('A = (-1, 0)', (x1+x2)/2, y0-18);
-    ctx.fillStyle='#4a9fd4'; ctx.fillText('B = (0, 1)', (x3+x4)/2, y0-18);
-    ctx.fillStyle='#666'; ctx.font='12px Nunito,sans-serif';
-    ctx.fillText('Separated: Ā ∩ B = ∅  and  A ∩ B̄ = ∅', W/2, y0+35);
-    document.getElementById('conn-info').textContent = 'Separated sets: dono sets ke closures ek doosre ke points nahi rakhte.';
-  }
-}
-window.addEventListener('resize', drawConn);
-setTimeout(drawConn, 350);
+animate();
 
-// ─── COMPACT CANVAS ───
-let compMode = 'compact';
-function setCompactMode(m, el) {
-  compMode = m;
-  document.querySelectorAll('#compact .vis-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  drawCompact();
-}
-function drawCompact() {
-  const c = document.getElementById('compact-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width = c.offsetWidth, H = c.height = c.offsetHeight;
-  ctx.fillStyle='#ede8d8'; ctx.fillRect(0,0,W,H);
-  const y0=H/2, x1=W*0.12, x2=W*0.88;
-  // interval
-  ctx.strokeStyle=compMode==='compact'?'#3abf9f':'#f0c040'; ctx.lineWidth=10; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(x1,y0); ctx.lineTo(x2,y0); ctx.stroke();
-  const closed = compMode==='compact';
-  ctx.beginPath(); ctx.arc(x1,y0,7,0,6.28);
-  if(closed){ctx.fillStyle='#3abf9f'; ctx.fill();}
-  else{ctx.strokeStyle='#f0c040'; ctx.lineWidth=2.5; ctx.stroke();}
-  ctx.beginPath(); ctx.arc(x2,y0,7,0,6.28);
-  if(closed){ctx.fillStyle='#3abf9f'; ctx.fill();}
-  else{ctx.strokeStyle='#f0c040'; ctx.lineWidth=2.5; ctx.stroke(); ctx.fillStyle='#ede8d8'; ctx.fill();}
-  ctx.fillStyle=closed?'#3abf9f':'#f0c040'; ctx.font='13px Nunito,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(closed?'[−1, 1]  Compact ✓':'(−1, 1)  Non-compact ✗', W/2, y0-22);
-  // open cover visualization
-  const covers = closed ? 3 : 7;
-  const covW = (x2-x1)/covers * 1.3;
-  for(let i=0;i<covers;i++){
-    const cx2 = x1 + (x2-x1)*(i+0.5)/covers;
-    ctx.beginPath(); ctx.arc(cx2,y0,covW/2,0,6.28);
-    ctx.strokeStyle = `hsla(${200+i*30},70%,60%,0.5)`;
-    ctx.lineWidth=1.5; ctx.setLineDash([3,2]); ctx.stroke(); ctx.setLineDash([]);
-  }
-  ctx.fillStyle='#555'; ctx.font='11px Nunito,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(closed?`${covers} sets sufficient (finite subcover ✓)`:`Many sets needed — boundary keeps "escaping" ✗`, W/2, y0+40);
-  document.getElementById('compact-info').textContent = closed
-    ? '[−1,1] compact: closed aur bounded. Finite subcover milti hai hamesha.'
-    : '(−1,1) non-compact: boundary points (−1, +1) set mein nahi hain — finite cover fail ho sakti hai.';
-}
-window.addEventListener('resize', drawCompact);
-setTimeout(drawCompact, 400);
-
-// resize all canvases on load
-window.addEventListener('load', () => {
-  [drawBall, drawOpen, drawSeq, drawComplete, drawConn, drawCompact].forEach(f => setTimeout(f, 100));
-});
 </script>
+
 </body>
 </html>
