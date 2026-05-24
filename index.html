@@ -2341,9 +2341,8 @@ function setConnMode(m, btn) {
   resize(); draw();
   window.addEventListener('resize',resize);
 })();
-
 /* ════════════════════════════════════════════
-   FEEDBACK FORM
+   FEEDBACK FORM — Formspree
 ════════════════════════════════════════════ */
 let starVal = 0;
 document.getElementById('star-row').addEventListener('click', e => {
@@ -2357,7 +2356,7 @@ document.getElementById('star-row').addEventListener('click', e => {
   }
 });
 
-function submitFeedback() {
+async function submitFeedback() {
   const name    = document.getElementById('fb-name').value.trim();
   const email   = document.getElementById('fb-email').value.trim();
   const section = document.getElementById('fb-section').value;
@@ -2365,17 +2364,37 @@ function submitFeedback() {
 
   if(!msg) { alert('Please write a message before sending.'); return; }
 
-  const rating  = starVal ? `⭐ Rating: ${starVal}/5` : '';
-  const body    = encodeURIComponent(
-    `From: ${name||'Anonymous'}\n` +
-    `Reply-to: ${email||'(not provided)'}\n` +
-    `Section: ${section||'General'}\n` +
-    (rating ? rating+'\n' : '') +
-    `\n${msg}`
-  );
-  const subject = encodeURIComponent(`Metric Spaces Feedback${section?' — '+section:''}`);
-  window.location.href = `mailto:mehraprerna68@gmail.com?subject=${subject}&body=${body}`;
-  document.getElementById('form-status').style.display = 'block';
+  const rating = starVal ? `${starVal}/5` : 'Not rated';
+
+  const res = await fetch('https://formspree.io/f/xlgvwgvl', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      name:    name    || 'Anonymous',
+      email:   email   || '(not provided)',
+      section: section || 'General',
+      rating:  rating,
+      message: msg
+    })
+  });
+
+  const status = document.getElementById('form-status');
+  if(res.ok) {
+    status.textContent = '✓ Feedback sent! Thank you.';
+    status.style.color = 'var(--sage)';
+    status.style.display = 'block';
+    document.getElementById('fb-name').value    = '';
+    document.getElementById('fb-email').value   = '';
+    document.getElementById('fb-section').value = '';
+    document.getElementById('fb-msg').value     = '';
+    starVal = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('lit'));
+    document.getElementById('star-label').textContent = 'Click to rate';
+  } else {
+    status.textContent = '✗ Something went wrong. Please try again.';
+    status.style.color = 'var(--rose)';
+    status.style.display = 'block';
+  }
 }
 </script>
 </body>
